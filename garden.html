@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AYUSH Herbal Garden</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Raleway',sans-serif;background:#0a1a0a;}
+#topbar{position:fixed;top:0;left:0;right:0;z-index:300;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:7px 12px;min-height:52px;background:rgba(5,12,5,0.93);backdrop-filter:blur(14px);border-bottom:1px solid rgba(61,220,132,0.1);}
+.btn-home{background:#27ae60;color:#fff;border:none;border-radius:7px;font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.08em;padding:6px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.2s;text-decoration:none;display:inline-flex;align-items:center;}
+.btn-home:hover{background:#1e8449;}
+#garden-title{background:rgba(255,255,255,0.07);color:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:7px;font-family:'DM Mono',monospace;font-size:0.68rem;padding:6px 12px;white-space:nowrap;flex-shrink:0;}
+#filter-bar{display:flex;gap:5px;flex:1;overflow-x:auto;scrollbar-width:none;align-items:center;}
+#filter-bar::-webkit-scrollbar{display:none;}
+.ftag{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.11);color:#999;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.6rem;padding:3px 10px;cursor:pointer;transition:all 0.18s;white-space:nowrap;flex-shrink:0;}
+.ftag:hover,.ftag.on{background:#27ae60;border-color:#27ae60;color:#fff;}
+.search-wrap{position:relative;flex-shrink:0;}
+.search-wrap input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:7px;font-family:'Raleway',sans-serif;font-size:0.73rem;padding:6px 11px 6px 28px;width:160px;outline:none;transition:border 0.2s;}
+.search-wrap input::placeholder{color:rgba(255,255,255,0.28);}
+.search-wrap input:focus{border-color:#27ae60;}
+.search-wrap svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);opacity:0.32;pointer-events:none;}
+#gtabs{position:fixed;top:58px;left:50%;transform:translateX(-50%);z-index:290;display:flex;gap:3px;background:rgba(5,12,5,0.92);backdrop-filter:blur(10px);border:1px solid rgba(61,220,132,0.1);border-radius:10px;padding:4px;}
+.gtab{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.06em;padding:5px 11px;border-radius:7px;cursor:pointer;border:none;color:#555;background:transparent;transition:all 0.2s;white-space:nowrap;}
+.gtab.on{color:#fff;}
+.gtab[data-g="A"].on{background:#2d6633;}
+.gtab[data-g="Y"].on{background:#556622;}
+.gtab[data-g="U"].on{background:#224466;}
+.gtab[data-g="S"].on{background:#662244;}
+.gtab[data-g="H"].on{background:#664422;}
+#scene{width:100%;height:100%;position:relative;overflow:hidden;cursor:grab;background:linear-gradient(180deg,#4a8ab0 0%,#6aaac8 15%,#88c4d8 28%,#aad4b8 36%,#88bb70 40%,#5a9040 44%,#3a6828 100%);}
+#scene.drag{cursor:grabbing;}
+.cld{position:absolute;pointer-events:none;}
+#world{position:absolute;width:3600px;height:3000px;left:50%;top:52%;transform-origin:center center;transform:translate(-50%,-50%) rotateX(52deg) rotateZ(-45deg);transform-style:preserve-3d;}
+#ground{position:absolute;inset:0;border-radius:18px;overflow:hidden;box-shadow:0 120px 240px rgba(0,0,0,0.7);background:repeating-linear-gradient(0deg,rgba(0,0,0,0.035) 0 1px,transparent 1px 80px),repeating-linear-gradient(90deg,rgba(0,0,0,0.035) 0 1px,transparent 1px 80px),linear-gradient(150deg,#5e9040 0%,#4a7a30 35%,#528040 65%,#3e6828 100%);}
+#ground::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 30% 20% at 13% 18%,rgba(80,140,40,0.5) 0%,transparent 100%),radial-gradient(ellipse 25% 18% at 80% 15%,rgba(60,110,25,0.4) 0%,transparent 100%),radial-gradient(ellipse 35% 22% at 50% 52%,rgba(75,130,35,0.42) 0%,transparent 100%),radial-gradient(ellipse 28% 20% at 86% 74%,rgba(65,120,30,0.4) 0%,transparent 100%),radial-gradient(ellipse 30% 18% at 14% 80%,rgba(80,140,40,0.5) 0%,transparent 100%);}
+.ph{position:absolute;height:60px;top:50%;left:2%;right:2%;transform:translateY(-50%);background:repeating-linear-gradient(90deg,#c8b898 0 115px,#b0a080 115px 120px,#c8b898 120px);border-top:3px solid rgba(255,255,255,0.2);border-bottom:3px solid rgba(0,0,0,0.25);box-shadow:0 4px 14px rgba(0,0,0,0.35);}
+.pv{position:absolute;width:60px;left:50%;top:2%;bottom:2%;transform:translateX(-50%);background:repeating-linear-gradient(0deg,#c8b898 0 115px,#b0a080 115px 120px,#c8b898 120px);border-left:3px solid rgba(255,255,255,0.2);border-right:3px solid rgba(0,0,0,0.25);box-shadow:4px 0 14px rgba(0,0,0,0.35);}
+.pc{position:absolute;width:60px;height:60px;left:50%;top:50%;transform:translate(-50%,-50%);background:#c8b898;z-index:2;}
+.bed{position:absolute;border-radius:8px;border:5px solid #7a5020;background:rgba(35,18,5,0.18);box-shadow:inset 0 0 30px rgba(0,0,0,0.4),0 3px 12px rgba(0,0,0,0.5);}
+.soil{position:absolute;border-radius:6px;background:radial-gradient(ellipse at 30% 35%,#4a2a0e,#2e1606 75%);opacity:0.48;}
+.peb{position:absolute;border-radius:50%;background:radial-gradient(circle at 32% 28%,#ddd0a8,#9a8878);box-shadow:1px 2px 4px rgba(0,0,0,0.45);}
+#plc{position:absolute;inset:0;pointer-events:none;}
+.plant{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;pointer-events:all;transform-origin:bottom center;}
+.pb{transition:transform 0.2s,filter 0.2s;transform-origin:bottom center;}
+.plant:hover .pb{transform:scale(1.1) translateY(-6px);filter:brightness(1.15) saturate(1.1);}
+.plant.dim{opacity:0.12;transition:opacity 0.3s;}
+.pshadow{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);border-radius:50%;background:rgba(0,0,0,0.3);filter:blur(5px);}
+.ptag{position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);background:rgba(4,10,4,0.9);color:#c8f0c8;font-family:'DM Mono',monospace;font-size:0.52rem;padding:2px 7px;border-radius:10px;white-space:nowrap;pointer-events:none;border:1px solid rgba(61,220,132,0.18);opacity:0;transition:opacity 0.15s;}
+.plant:hover .ptag{opacity:1;}
+.dmound{position:absolute;border-radius:50%;background:radial-gradient(circle at 38% 32%,#5e3c18,#301608);box-shadow:0 5px 14px rgba(0,0,0,0.5),inset 0 2px 5px rgba(0,0,0,0.4);}
+#botbar{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:300;display:flex;align-items:center;gap:10px;background:rgba(5,12,5,0.92);backdrop-filter:blur(10px);border:1px solid rgba(61,220,132,0.1);border-radius:10px;padding:7px 16px;}
+.bcnt{font-family:'DM Mono',monospace;font-size:0.68rem;color:#fff;}
+.bnav{background:rgba(255,255,255,0.07);color:#bbb;border:1px solid rgba(255,255,255,0.1);border-radius:7px;font-family:'DM Mono',monospace;font-size:0.65rem;padding:4px 12px;cursor:pointer;transition:background 0.2s;}
+.bnav:hover{background:rgba(255,255,255,0.15);color:#fff;}
+.bpg{font-family:'DM Mono',monospace;font-size:0.65rem;color:#555;}
+#hint{position:fixed;bottom:58px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.72);color:#aaa;font-family:'DM Mono',monospace;font-size:0.58rem;padding:4px 13px;border-radius:20px;pointer-events:none;z-index:299;border:1px solid rgba(255,255,255,0.07);white-space:nowrap;}
+#panel{position:fixed;right:-360px;top:0;bottom:0;width:340px;background:rgba(6,14,6,0.97);backdrop-filter:blur(20px);border-left:1px solid rgba(61,220,132,0.12);z-index:400;transition:right 0.4s cubic-bezier(0.34,1.3,0.64,1);display:flex;flex-direction:column;overflow-y:auto;}
+#panel.open{right:0;}
+.phero{padding:68px 18px 14px;position:relative;min-height:175px;display:flex;flex-direction:column;justify-content:flex-end;}
+.phero-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.povl{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 10%,rgba(6,14,6,0.97) 100%);}
+.pclose{position:absolute;top:11px;right:11px;background:rgba(255,255,255,0.08);border:none;color:#aaa;width:27px;height:27px;border-radius:50%;font-size:0.85rem;cursor:pointer;z-index:1;transition:background 0.2s;}
+.pclose:hover{background:rgba(255,255,255,0.18);color:#fff;}
+.psys{display:inline-block;font-family:'DM Mono',monospace;font-size:0.54rem;letter-spacing:0.12em;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-bottom:5px;position:relative;z-index:1;}
+.pname{font-family:'Cinzel',serif;font-size:1.8rem;font-weight:600;color:#fff;line-height:1.1;position:relative;z-index:1;}
+.platin{font-style:italic;font-size:0.82rem;color:#777;margin-top:2px;position:relative;z-index:1;}
+.pbody{padding:13px 18px 20px;flex:1;}
+.psec{margin-bottom:12px;}
+.pst{font-family:'DM Mono',monospace;font-size:0.54rem;letter-spacing:0.13em;text-transform:uppercase;color:#3a5a3a;margin-bottom:5px;}
+.psc{font-size:0.78rem;color:#a0b8a0;line-height:1.65;}
+.utags{display:flex;flex-wrap:wrap;gap:4px;}
+.utag{background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.22);color:#5adb88;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.58rem;padding:2px 8px;}
+.pbtn{display:block;width:100%;background:#27ae60;color:#fff;border:none;border-radius:8px;padding:10px;font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;cursor:pointer;margin-top:11px;transition:background 0.2s;}
+.pbtn:hover{background:#1e8449;}
+.pbtn2{display:block;width:100%;background:transparent;border:1px solid rgba(61,220,132,0.3);color:#3ddc84;border-radius:8px;padding:9px;font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;cursor:pointer;margin-top:7px;transition:all 0.2s;text-decoration:none;text-align:center;}
+.pbtn2:hover{background:rgba(61,220,132,0.08);}
+#loader{position:fixed;inset:0;background:#060e06;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.5s;}
+.lt{font-family:'Cinzel',serif;font-size:2.4rem;color:#fff;margin-bottom:4px;text-align:center;}
+.lt span{color:#27ae60;}
+.ls{font-family:'DM Mono',monospace;font-size:0.65rem;color:#2a4a2a;margin-bottom:26px;letter-spacing:0.12em;}
+.lb{width:200px;height:2px;background:rgba(255,255,255,0.07);border-radius:2px;}
+.lf{height:100%;background:#27ae60;border-radius:2px;width:0;transition:width 0.05s;}
+</style>
+</head>
+<body>
+<div id="loader">
+  <div class="lt">AYUSH <span>Herbal</span> Garden</div>
+  <div class="ls" id="lsub">Loading garden...</div>
+  <div class="lb"><div class="lf" id="lf"></div></div>
+</div>
+<div id="topbar">
+  <a class="btn-home" href="select.html">&#8592; Home</a>
+  <div id="garden-title">Ayurveda Garden</div>
+  <div id="filter-bar"></div>
+  <div class="search-wrap">
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="white" stroke-width="1.4"/><line x1="9.5" y1="9.5" x2="13" y2="13" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <input id="si" type="text" placeholder="Search plants..." oninput="doSearch()"/>
+  </div>
+</div>
+<div id="gtabs">
+  <button class="gtab" data-g="A" onclick="swG('A')">Ayurveda</button>
+  <button class="gtab" data-g="Y" onclick="swG('Y')">Yoga &amp; Naturopathy</button>
+  <button class="gtab" data-g="U" onclick="swG('U')">Unani</button>
+  <button class="gtab" data-g="S" onclick="swG('S')">Siddha</button>
+  <button class="gtab" data-g="H" onclick="swG('H')">Homeopathy</button>
+</div>
+<div id="scene">
+  <svg class="cld" style="top:2%;left:3%;width:240px;height:68px;" viewBox="0 0 240 68"><ellipse cx="95" cy="44" rx="82" ry="25" fill="rgba(255,255,255,0.78)"/><ellipse cx="148" cy="36" rx="65" ry="22" fill="rgba(255,255,255,0.85)"/><ellipse cx="68" cy="38" rx="48" ry="20" fill="rgba(255,255,255,0.72)"/><ellipse cx="190" cy="46" rx="44" ry="18" fill="rgba(255,255,255,0.66)"/></svg>
+  <svg class="cld" style="top:4%;right:5%;width:195px;height:56px;" viewBox="0 0 195 56"><ellipse cx="88" cy="36" rx="74" ry="22" fill="rgba(255,255,255,0.74)"/><ellipse cx="126" cy="28" rx="56" ry="19" fill="rgba(255,255,255,0.82)"/><ellipse cx="60" cy="32" rx="42" ry="17" fill="rgba(255,255,255,0.66)"/></svg>
+  <svg class="cld" style="top:1%;left:35%;width:175px;height:50px;" viewBox="0 0 175 50"><ellipse cx="74" cy="34" rx="64" ry="18" fill="rgba(255,255,255,0.76)"/><ellipse cx="112" cy="27" rx="50" ry="16" fill="rgba(255,255,255,0.84)"/><ellipse cx="50" cy="30" rx="38" ry="14" fill="rgba(255,255,255,0.68)"/></svg>
+  <div id="world">
+    <div id="ground">
+      <div class="soil" style="left:3%;top:3%;width:44%;height:44%;"></div>
+      <div class="soil" style="right:3%;top:3%;width:44%;height:44%;"></div>
+      <div class="soil" style="left:3%;bottom:3%;width:44%;height:44%;"></div>
+      <div class="soil" style="right:3%;bottom:3%;width:44%;height:44%;"></div>
+      <div class="ph"></div><div class="pv"></div><div class="pc"></div>
+      <div class="bed" style="left:2%;top:2%;width:46%;height:46%;"></div>
+      <div class="bed" style="right:2%;top:2%;width:46%;height:46%;"></div>
+      <div class="bed" style="left:2%;bottom:2%;width:46%;height:46%;"></div>
+      <div class="bed" style="right:2%;bottom:2%;width:46%;height:46%;"></div>
+      <div class="peb" style="width:22px;height:14px;left:51.5%;top:20%;transform:rotate(18deg);"></div>
+      <div class="peb" style="width:16px;height:10px;left:48.8%;top:32%;transform:rotate(-12deg);"></div>
+      <div class="peb" style="width:24px;height:15px;left:52%;top:45%;transform:rotate(28deg);"></div>
+      <div class="peb" style="width:13px;height:9px;left:24%;top:51%;transform:rotate(-8deg);"></div>
+      <div class="peb" style="width:19px;height:12px;left:74%;top:51.5%;transform:rotate(22deg);"></div>
+      <div class="peb" style="width:26px;height:16px;left:49%;top:64%;transform:rotate(-18deg);"></div>
+      <div class="peb" style="width:17px;height:11px;left:51%;top:77%;transform:rotate(10deg);"></div>
+      <div class="peb" style="width:14px;height:9px;left:37%;top:50.5%;transform:rotate(-25deg);"></div>
+    </div>
+    <div id="plc"></div>
+  </div>
+</div>
+<div id="botbar">
+  <div class="bcnt" id="bcnt">0 plants</div>
+  <button class="bnav" onclick="goPg(-1)">&#8592; Prev</button>
+  <div class="bpg" id="bpg">1/1</div>
+  <button class="bnav" onclick="goPg(1)">Next &#8594;</button>
+</div>
+<div id="hint">Click a plant to learn &nbsp;&middot;&nbsp; Drag to pan &nbsp;&middot;&nbsp; Scroll to zoom</div>
+<div id="panel">
+  <div class="phero">
+    <div class="phero-bg" id="pbg"></div>
+    <div class="povl"></div>
+    <button class="pclose" onclick="closeP()">&#10005;</button>
+    <div class="psys" id="psys"></div>
+    <div class="pname" id="pname"></div>
+    <div class="platin" id="platin"></div>
+  </div>
+  <div class="pbody">
+    <div class="psec"><div class="pst">About</div><div class="psc" id="pabt"></div></div>
+    <div class="psec"><div class="pst">Medicinal Uses</div><div class="utags" id="puse"></div></div>
+    <div class="psec"><div class="pst">Parts Used</div><div class="psc" id="pprt"></div></div>
+    <div class="psec"><div class="pst">Habitat</div><div class="psc" id="phab"></div></div>
+    <button class="pbtn">View Full Profile &#8594;</button>
+    <a class="pbtn2" id="quiz-link" href="quiz.html">Take the Quiz &#8594;</a>
+  </div>
+</div>
+<script>
+const DB={
+A:{name:'Ayurveda Garden',col:'#2d6633',bc:'rgba(45,102,51,0.3)',tc:'#6add88',
+  filters:['Immunity','Fever','Skin','Digestion','Arthritis','Stress','Hair','Detox','Anti-bacterial','Anti-inflammatory','Liver','Respiratory','Heart','Diabetes','Anxiety','Acne','Memory','Energy','Constipation','Wound healing'],
+  plants:[
+    {n:'Tulsi',l:'Ocimum tenuiflorum',u:['Immunity','Respiratory','Anti-bacterial','Stress'],p:'Leaves, Seeds, Roots',h:'Tropical South & SE Asia',a:'Sacred herb of Ayurveda — powerful adaptogen and immunomodulator used for 3,000+ years.',t:'herb',c:'#3a8c3a',s:95},
+    {n:'Ashwagandha',l:'Withania somnifera',u:['Stress','Anxiety','Energy','Arthritis'],p:'Roots, Leaves',h:'India, North Africa',a:'King of Ayurvedic herbs — reduces cortisol, strengthens vitality, improves endurance.',t:'shrub',c:'#c07830',s:88},
+    {n:'Neem',l:'Azadirachta indica',u:['Anti-bacterial','Acne','Skin','Detox'],p:'Leaves, Bark, Seeds',h:'Indian subcontinent',a:'Village pharmacy of India — profound antibacterial, antifungal, blood-purifying properties.',t:'tree',c:'#2d7a2d',s:130},
+    {n:'Amla',l:'Phyllanthus emblica',u:['Immunity','Hair','Digestion','Anti-inflammatory'],p:'Fruit, Seeds',h:'Indian subcontinent',a:'Richest natural source of Vitamin C — ancient texts call it Amrita, nectar of immortality.',t:'tree',c:'#68aa30',s:108},
+    {n:'Brahmi',l:'Bacopa monnieri',u:['Memory','Anxiety','Stress','Energy'],p:'Whole plant',h:'Wetlands across India',a:'Supreme nootropic — enhances memory, reduces anxiety, and protects neurons from degeneration.',t:'creeper',c:'#30988a',s:52},
+    {n:'Turmeric',l:'Curcuma longa',u:['Anti-inflammatory','Arthritis','Skin','Detox'],p:'Rhizome',h:'South & Southeast Asia',a:'The golden healer — curcumin is one of the most studied medicinal compounds in science.',t:'herb',c:'#d0a018',s:68},
+    {n:'Giloy',l:'Tinospora cordifolia',u:['Immunity','Fever','Liver','Detox'],p:'Stem, Leaves, Roots',h:'Tropical India & Sri Lanka',a:'Called Amrita — powerfully stimulates innate immunity and fights inflammatory diseases.',t:'vine',c:'#28985a',s:74},
+    {n:'Shatavari',l:'Asparagus racemosus',u:['Energy','Digestion','Stress','Anti-inflammatory'],p:'Roots',h:'India, Sri Lanka, Himalayas',a:'Queen of herbs — primary tonic for reproductive health and hormonal balance.',t:'shrub',c:'#7060b0',s:80},
+    {n:'Arjuna',l:'Terminalia arjuna',u:['Heart','Detox','Liver','Anti-inflammatory'],p:'Bark',h:'Indian subcontinent',a:'Premier cardiac tonic — bark extracts strengthen heart muscle and regulate blood pressure.',t:'tree',c:'#8a6848',s:122},
+    {n:'Haritaki',l:'Terminalia chebula',u:['Constipation','Detox','Digestion','Anti-inflammatory'],p:'Fruit',h:'South & Southeast Asia',a:'King of medicines — promotes digestive fire and cleanses the colon.',t:'tree',c:'#988028',s:112},
+    {n:'Kalmegh',l:'Andrographis paniculata',u:['Fever','Liver','Anti-bacterial','Immunity'],p:'Leaves, Roots',h:'India, Sri Lanka',a:'King of Bitters — effective for liver protection and immune stimulation.',t:'herb',c:'#189888',s:60},
+    {n:'Vasaka',l:'Justicia adhatoda',u:['Respiratory','Fever','Anti-bacterial','Anti-inflammatory'],p:'Leaves, Roots, Bark',h:'Sub-Himalayan tracts',a:'Malabar nut — most important Ayurvedic herb for respiratory disorders.',t:'shrub',c:'#489040',s:88},
+    {n:'Triphala',l:'Three-fruit combination',u:['Digestion','Constipation','Detox','Anti-inflammatory'],p:'Dried fruits of 3 plants',h:'India',a:'Ancient tri-fruit formula combining Amalaki, Bibhitaki and Haritaki for digestive wellness.',t:'shrub',c:'#d35400',s:62},
+    {n:'Bael',l:'Aegle marmelos',u:['Digestion','Fever','Constipation','Diabetes'],p:'Fruit, Leaves, Bark',h:'India, Southeast Asia',a:'Sacred bael tree — unripe fruit treats diarrhea, ripe fruit relieves constipation.',t:'tree',c:'#c89818',s:118},
+    {n:'Guduchi',l:'Tinospora sinensis',u:['Immunity','Fever','Liver','Detox'],p:'Stem, Roots',h:'Tropical India',a:'Divine nectar — deeply rejuvenating herb that strengthens immunity and purifies blood.',t:'vine',c:'#38a860',s:70},
+    {n:'Punarnava',l:'Boerhavia diffusa',u:['Liver','Kidney','Anti-inflammatory','Digestion'],p:'Whole plant',h:'India, tropical regions',a:'The renewer — revitalizes liver and kidney function, reduces swelling.',t:'creeper',c:'#e06030',s:50},
+    {n:'Kutki',l:'Picrorhiza kurroa',u:['Liver','Fever','Digestion','Immunity'],p:'Roots, Rhizome',h:'Himalayas',a:'Himalayan herb — one of the most potent liver-protective plants in Ayurveda.',t:'herb',c:'#888020',s:55},
+    {n:'Sarpagandha',l:'Rauvolfia serpentina',u:['Heart','Anxiety','Stress','Fever'],p:'Roots',h:'India, SE Asia',a:'Indian snakeroot — contains reserpine, one of the first antihypertensive compounds discovered.',t:'shrub',c:'#6050a0',s:72},
+    {n:'Shankhpushpi',l:'Convolvulus pluricaulis',u:['Memory','Anxiety','Stress','Energy'],p:'Whole plant',h:'India',a:'Brain tonic par excellence — enhances cognitive function and reduces mental fatigue.',t:'creeper',c:'#8888d0',s:48},
+    {n:'Mulethi',l:'Glycyrrhiza glabra',u:['Respiratory','Liver','Anti-inflammatory','Digestion'],p:'Roots',h:'Mediterranean, Central Asia',a:'Sweet liquorice root — soothes respiratory tract and protects liver from damage.',t:'herb',c:'#c08808',s:62},
+    {n:'Bibhitaki',l:'Terminalia bellirica',u:['Respiratory','Hair','Detox','Anti-inflammatory'],p:'Fruit',h:'South & SE Asia',a:'One of Triphala\'s three fruits — excellent for respiratory health and hair strengthening.',t:'tree',c:'#708830',s:105},
+    {n:'Vidanga',l:'Embelia ribes',u:['Digestion','Anti-bacterial','Detox','Skin'],p:'Fruit, Seeds',h:'India, Sri Lanka',a:'Powerful anthelmintic — expels intestinal parasites and improves digestive health.',t:'vine',c:'#a05050',s:58},
+    {n:'Pippali',l:'Piper longum',u:['Respiratory','Digestion','Anti-inflammatory','Immunity'],p:'Fruit, Roots',h:'India, SE Asia',a:'Long pepper — enhances bioavailability of other herbs and strengthens lung function.',t:'vine',c:'#805030',s:55},
+    {n:'Gokshura',l:'Tribulus terrestris',u:['Kidney','Energy','Anti-inflammatory','Digestion'],p:'Fruit, Roots',h:'India, Mediterranean',a:'Caltrops — builds muscle strength, supports kidney health, and enhances vitality.',t:'creeper',c:'#d0a040',s:45},
+    {n:'Kushtha',l:'Saussurea lappa',u:['Skin','Anti-inflammatory','Respiratory','Fever'],p:'Roots',h:'Kashmir Himalayas',a:'Kashmir root — anti-inflammatory and antibacterial, used for skin diseases and asthma.',t:'herb',c:'#9060a0',s:70},
+    {n:'Jatamansi',l:'Nardostachys jatamansi',u:['Anxiety','Stress','Memory','Heart'],p:'Roots, Rhizome',h:'Himalayas',a:'Himalayan spikenard — calms the nervous system and improves sleep quality.',t:'herb',c:'#a08060',s:58},
+    {n:'Devdaru',l:'Cedrus deodara',u:['Arthritis','Fever','Skin','Detox'],p:'Wood, Bark, Oil',h:'Himalayas',a:'Himalayan cedar — anti-inflammatory wood oil treats arthritis and skin conditions.',t:'tree',c:'#608050',s:140},
+    {n:'Manjistha',l:'Rubia cordifolia',u:['Skin','Liver','Anti-inflammatory','Detox'],p:'Roots',h:'India, SE Asia',a:'Indian madder — supreme blood purifier for skin diseases and inflammatory conditions.',t:'vine',c:'#c04050',s:60},
+    {n:'Nimba',l:'Azadirachta indica var.',u:['Skin','Anti-bacterial','Acne','Diabetes'],p:'Leaves, Oil',h:'India',a:'Margosa — powerful antibacterial and antidiabetic herb used topically and internally.',t:'tree',c:'#388838',s:125},
+    {n:'Chitraka',l:'Plumbago zeylanica',u:['Digestion','Arthritis','Liver','Anti-inflammatory'],p:'Roots',h:'India, SE Asia',a:'Leadwort — digestive fire kindler that treats arthritis and chronic digestive issues.',t:'shrub',c:'#d06020',s:65},
+    {n:'Amaltas',l:'Cassia fistula',u:['Constipation','Fever','Skin','Anti-inflammatory'],p:'Fruit pulp, Flowers',h:'India, SE Asia',a:'Golden shower tree — gentle laxative and febrifuge with beautiful yellow flowers.',t:'tree',c:'#d0b020',s:115},
+    {n:'Vacha',l:'Acorus calamus',u:['Memory','Respiratory','Digestion','Anxiety'],p:'Rhizome',h:'India, temperate Asia',a:'Sweet flag — enhances speech, memory, and vocal clarity; anti-epileptic properties.',t:'grass',c:'#68a848',s:65},
+    {n:'Bakuchi',l:'Psoralea corylifolia',u:['Skin','Anti-bacterial','Kidney','Anti-inflammatory'],p:'Seeds, Oil',h:'India',a:'Babchi seeds — primary Ayurvedic treatment for vitiligo and other skin depigmentation.',t:'herb',c:'#808040',s:58},
+    {n:'Kanchanar',l:'Bauhinia variegata',u:['Thyroid','Skin','Liver','Anti-inflammatory'],p:'Bark, Flowers',h:'India, SE Asia',a:'Orchid tree — specific for thyroid gland conditions and lymphatic swelling.',t:'tree',c:'#d080a0',s:112},
+    {n:'Dashamoola',l:'Ten-root formulation',u:['Arthritis','Fever','Respiratory','Anti-inflammatory'],p:'Roots of 10 plants',h:'India',a:'The ten-root formula — foundational Ayurvedic combination for all vata disorders.',t:'shrub',c:'#806040',s:75},
+    {n:'Karela',l:'Momordica charantia',u:['Diabetes','Liver','Skin','Digestion'],p:'Fruit, Leaves, Seeds',h:'Tropical Asia, Africa',a:'Bitter gourd — most potent natural hypoglycemic for diabetes management.',t:'vine',c:'#509050',s:55},
+    {n:'Methi',l:'Trigonella foenum-graecum',u:['Diabetes','Digestion','Hair','Anti-inflammatory'],p:'Seeds, Leaves',h:'Mediterranean, South Asia',a:'Fenugreek — regulates blood sugar, aids digestion, promotes hair growth.',t:'herb',c:'#a0b840',s:52},
+    {n:'Shallaki',l:'Boswellia serrata',u:['Arthritis','Anti-inflammatory','Liver','Respiratory'],p:'Resin',h:'India, North Africa',a:'Indian frankincense — one of the most powerful natural anti-inflammatories.',t:'tree',c:'#c09060',s:108},
+    {n:'Yashtimadhu',l:'Glycyrrhiza uralensis',u:['Respiratory','Digestion','Anti-inflammatory','Stress'],p:'Roots',h:'China, Central Asia',a:'Chinese liquorice — harmonizer of all Ayurvedic formulas, soothes mucous membranes.',t:'herb',c:'#b8a030',s:60},
+    {n:'Nagkesar',l:'Mesua ferrea',u:['Fever','Digestion','Skin','Anti-inflammatory'],p:'Flowers, Stamens, Oil',h:'South India, SE Asia',a:'Ceylon ironwood — astringent flowers treat fever, skin conditions, and digestive disorders.',t:'tree',c:'#d0a060',s:130},
+    {n:'Lodhra',l:'Symplocos racemosa',u:['Skin','Liver','Anti-inflammatory','Digestion'],p:'Bark',h:'India, SE Asia',a:'Symplocos bark — strengthens female reproductive health and treats inflammatory skin diseases.',t:'tree',c:'#a07050',s:120},
+    {n:'Vidari',l:'Pueraria tuberosa',u:['Energy','Immunity','Anti-inflammatory','Digestion'],p:'Roots, Tubers',h:'India, Nepal',a:'Indian kudzu — rejuvenating tonic that builds strength and immunity.',t:'vine',c:'#a06880',s:62},
+    {n:'Prishniparni',l:'Uraria picta',u:['Fever','Respiratory','Anti-inflammatory','Immunity'],p:'Whole plant',h:'India, SE Asia',a:'Part of Dashamoola — treats fevers and respiratory infections in Ayurvedic combinations.',t:'herb',c:'#8090a0',s:55},
+    {n:'Shigru',l:'Moringa oleifera',u:['Digestion','Anti-inflammatory','Diabetes','Skin'],p:'Leaves, Seeds, Pods, Roots',h:'India',a:'Drumstick tree — nutritional powerhouse that treats inflammation, diabetes and malnutrition.',t:'tree',c:'#409040',s:128},
+    {n:'Shatavari kalpa',l:'Asparagus adscendens',u:['Energy','Digestion','Anti-inflammatory','Stress'],p:'Roots',h:'Himalayas, North India',a:'White Shatavari — adaptogenic tonic that builds ojas, the vital essence of health.',t:'herb',c:'#d0e080',s:65},
+    {n:'Punarnava Mandoor',l:'Boerhavia repens',u:['Liver','Kidney','Anti-inflammatory','Digestion'],p:'Roots, Whole plant',h:'India, Africa',a:'Spreading hogweed — cousin of Punarnava, equally effective for liver and kidney conditions.',t:'creeper',c:'#d06840',s:48},
+    {n:'Karpura',l:'Cinnamomum camphora',u:['Respiratory','Anti-bacterial','Skin','Fever'],p:'Wood, Bark, Oil',h:'India, SE Asia',a:'Camphor tree — aromatic vapors clear respiratory tract and kill surface bacteria.',t:'tree',c:'#e8f0d0',s:115},
+    {n:'Daruhaldi',l:'Berberis aristata',u:['Liver','Anti-bacterial','Skin','Diabetes'],p:'Roots, Bark',h:'Himalayas',a:'Tree turmeric — contains berberine, a powerful antimicrobial and liver protectant.',t:'shrub',c:'#d0c018',s:80},
+    {n:'Tejpatta',l:'Cinnamomum tamala',u:['Digestion','Diabetes','Anti-inflammatory','Respiratory'],p:'Leaves',h:'Himalayas, NE India',a:'Indian bay leaf — regulates blood sugar and improves digestion through aromatic oils.',t:'tree',c:'#60a840',s:105},
+    {n:'Chakramarda',l:'Senna tora',u:['Skin','Anti-bacterial','Liver','Anti-inflammatory'],p:'Seeds, Leaves',h:'India, tropical Asia',a:'Foetid cassia — treats fungal skin infections and liver inflammation effectively.',t:'shrub',c:'#d0a820',s:72},
+    {n:'Kushtha Brahmi',l:'Centella asiatica',u:['Memory','Wound healing','Skin','Anxiety'],p:'Whole plant',h:'India, SE Asia, Africa',a:'Gotu kola — heals wounds and scars while sharpening memory and calming the mind.',t:'creeper',c:'#40a870',s:46}
+  ]},
+Y:{name:'Yoga & Naturopathy Garden',col:'#556622',bc:'rgba(85,102,34,0.3)',tc:'#aadd44',
+  filters:['Detox','Sleep','Stress relief','Digestion','Energy','Skin care','Breathing','Immunity','Weight loss','Inflammation','Circulation','Antioxidant','Blood sugar','Liver','Joints'],
+  plants:[
+    {n:'Moringa',l:'Moringa oleifera',u:['Energy','Anti-inflammatory','Detox','Immunity'],p:'Leaves, Seeds, Pods',h:'Sub-Himalayan tracts',a:'The miracle tree — gram for gram richer in vitamins than most superfoods.',t:'tree',c:'#388838',s:125},
+    {n:'Aloe Vera',l:'Aloe barbadensis',u:['Skin care','Digestion','Immunity','Detox'],p:'Gel, Latex',h:'Arabian Peninsula',a:'Universal healer — gel treats digestive disorders, burns, and boosts immunity.',t:'succulent',c:'#589830',s:65},
+    {n:'Chamomile',l:'Matricaria chamomilla',u:['Sleep','Stress relief','Digestion','Anti-inflammatory'],p:'Flowers',h:'Europe, Asia',a:'Ancient relaxation flower — promotes restful sleep and calms digestive spasms.',t:'flower',c:'#d8c828',s:52},
+    {n:'Lavender',l:'Lavandula angustifolia',u:['Stress relief','Sleep','Skin care','Breathing'],p:'Flowers, Essential oil',h:'Mediterranean region',a:'Most versatile aromatic herb — calming, antimicrobial, widely used in aromatherapy.',t:'flower',c:'#8058c0',s:60},
+    {n:'Lemon Grass',l:'Cymbopogon citratus',u:['Detox','Digestion','Anti-inflammatory','Breathing'],p:'Stalks, Leaves',h:'Tropical Asia & Africa',a:'Citrusy detox grass — powerful antioxidant that cleanses the body.',t:'grass',c:'#a8b828',s:75},
+    {n:'Peppermint',l:'Mentha piperita',u:['Digestion','Breathing','Energy','Stress relief'],p:'Leaves, Essential oil',h:'Europe, North America',a:'Cool and refreshing — opens airways, relieves headaches, and boosts mental energy.',t:'herb',c:'#20a870',s:48},
+    {n:'Stevia',l:'Stevia rebaudiana',u:['Blood sugar','Weight loss','Digestion','Immunity'],p:'Leaves',h:'Paraguay, South America',a:'Natural zero-calorie sweetener — 200x sweeter than sugar with no glycemic impact.',t:'herb',c:'#48c048',s:44},
+    {n:'Wheatgrass',l:'Triticum aestivum',u:['Detox','Energy','Digestion','Anti-inflammatory'],p:'Young shoots',h:'Cultivated worldwide',a:'Chlorophyll-dense young shoots alkalize the body and detoxify the liver.',t:'grass',c:'#68bc38',s:55},
+    {n:'Rosemary',l:'Salvia rosmarinus',u:['Memory','Circulation','Stress relief','Anti-inflammatory'],p:'Leaves, Essential oil',h:'Mediterranean',a:'Herb of remembrance — improves cerebral circulation and mental clarity.',t:'shrub',c:'#607848',s:68},
+    {n:'Ginger',l:'Zingiber officinale',u:['Digestion','Anti-inflammatory','Immunity','Breathing'],p:'Rhizome',h:'South Asia',a:'Warming root — gingerols fight inflammation, nausea, and respiratory infections.',t:'herb',c:'#d89818',s:62},
+    {n:'Turmeric',l:'Curcuma longa',u:['Anti-inflammatory','Joints','Skin care','Detox'],p:'Rhizome',h:'South & SE Asia',a:'Golden spice — curcumin reduces inflammation systemically and heals skin.',t:'herb',c:'#d0a018',s:62},
+    {n:'Ashwagandha',l:'Withania somnifera',u:['Stress relief','Energy','Sleep','Immunity'],p:'Roots',h:'India, North Africa',a:'Adaptogen root — reduces cortisol and helps body adapt to physical and mental stress.',t:'shrub',c:'#c07830',s:82},
+    {n:'Flaxseed',l:'Linum usitatissimum',u:['Digestion','Circulation','Inflammation','Weight loss'],p:'Seeds, Oil',h:'Mediterranean, India',a:'Omega-3 rich seeds — reduce cholesterol, improve digestion, and reduce inflammation.',t:'herb',c:'#9090d0',s:50},
+    {n:'Spirulina',l:'Arthrospira platensis',u:['Energy','Immunity','Detox','Anti-inflammatory'],p:'Whole algae (dried)',h:'Tropical lakes worldwide',a:'Blue-green algae superfood — complete protein with antioxidants and B vitamins.',t:'herb',c:'#208060',s:40},
+    {n:'Tulsi (Holy Basil)',l:'Ocimum tenuiflorum',u:['Stress relief','Immunity','Breathing','Anti-inflammatory'],p:'Leaves, Seeds',h:'India, SE Asia',a:'Sacred adaptogen — balances the nervous system and fights respiratory infections.',t:'herb',c:'#3a9c3a',s:90},
+    {n:'Neem',l:'Azadirachta indica',u:['Skin care','Detox','Immunity','Anti-inflammatory'],p:'Leaves, Oil',h:'India',a:'Nature\'s pharmacy — purifies blood and treats multiple skin and systemic diseases.',t:'tree',c:'#287828',s:120},
+    {n:'Brahmi',l:'Bacopa monnieri',u:['Memory','Stress relief','Sleep','Circulation'],p:'Whole plant',h:'Wetlands, India',a:'Nootropic herb — clinical studies confirm improvement in memory and learning.',t:'creeper',c:'#30988a',s:48},
+    {n:'Kalmegh',l:'Andrographis paniculata',u:['Liver','Immunity','Detox','Anti-inflammatory'],p:'Leaves, Roots',h:'India, SE Asia',a:'Bitter herb — protects liver cells and powerfully stimulates immune response.',t:'herb',c:'#189888',s:58},
+    {n:'Guduchi',l:'Tinospora cordifolia',u:['Immunity','Detox','Anti-inflammatory','Blood sugar'],p:'Stem',h:'India',a:'Rejuvenating climber — adaptogen that normalizes immune function and blood glucose.',t:'vine',c:'#28985a',s:68},
+    {n:'Haritaki',l:'Terminalia chebula',u:['Detox','Digestion','Anti-inflammatory','Energy'],p:'Fruit',h:'South & SE Asia',a:'Rejuvenating fruit — cleanses all channels of the body and enhances vitality.',t:'tree',c:'#988028',s:108},
+    {n:'Triphala',l:'Three-fruit formula',u:['Detox','Digestion','Antioxidant','Immunity'],p:'Three dried fruits',h:'India',a:'The great three-fruit cleanser — daily detox formula for digestive and overall health.',t:'shrub',c:'#c07840',s:60},
+    {n:'Fennel',l:'Foeniculum vulgare',u:['Digestion','Breathing','Anti-inflammatory','Stress relief'],p:'Seeds, Leaves',h:'Mediterranean',a:'Aromatic fennel — relieves bloating, freshens breath, and calms digestive spasms.',t:'herb',c:'#88c040',s:65},
+    {n:'Amla',l:'Phyllanthus emblica',u:['Antioxidant','Immunity','Skin care','Energy'],p:'Fruit',h:'India, SE Asia',a:'Supreme antioxidant — highest ORAC score of any natural food per gram.',t:'tree',c:'#68aa30',s:105},
+    {n:'Nettle',l:'Urtica dioica',u:['Anti-inflammatory','Joints','Energy','Detox'],p:'Leaves, Roots',h:'Europe, Asia',a:'Stinging nettle — iron-rich leaf that treats anemia, arthritis, and allergies.',t:'herb',c:'#508850',s:72},
+    {n:'Dandelion',l:'Taraxacum officinale',u:['Liver','Detox','Digestion','Anti-inflammatory'],p:'Root, Leaves, Flowers',h:'Europe, Asia, Americas',a:'Weed with healing powers — cleanses liver, stimulates bile, and reduces inflammation.',t:'flower',c:'#d8c020',s:48},
+    {n:'Valerian',l:'Valeriana officinalis',u:['Sleep','Stress relief','Anxiety','Joints'],p:'Roots',h:'Europe, Asia',a:'Nature\'s tranquilizer — clinical evidence supports its use for insomnia and anxiety.',t:'herb',c:'#a080c0',s:68},
+    {n:'Echinacea',l:'Echinacea purpurea',u:['Immunity','Anti-bacterial','Anti-inflammatory','Breathing'],p:'Root, Aerial parts',h:'North America',a:'Purple coneflower — stimulates white blood cell production and fights infection.',t:'flower',c:'#c050a0',s:70},
+    {n:'St. John\'s Wort',l:'Hypericum perforatum',u:['Stress relief','Sleep','Anti-inflammatory','Skin care'],p:'Flowers, Leaves',h:'Europe, Asia',a:'Sunshine herb — clinical trials confirm effectiveness for mild to moderate depression.',t:'flower',c:'#d0b820',s:65},
+    {n:'Milk Thistle',l:'Silybum marianum',u:['Liver','Detox','Anti-inflammatory','Antioxidant'],p:'Seeds',h:'Mediterranean, Europe',a:'Silymarin-rich seeds — the gold standard herbal liver protectant worldwide.',t:'flower',c:'#c050c0',s:72},
+    {n:'Calendula',l:'Calendula officinalis',u:['Skin care','Wound healing','Anti-inflammatory','Immunity'],p:'Flowers',h:'Mediterranean, Central Asia',a:'Marigold gold — topical healer for wounds, burns, rashes, and inflammatory skin.',t:'flower',c:'#d88818',s:55},
+    {n:'Rose Hip',l:'Rosa canina',u:['Immunity','Anti-inflammatory','Antioxidant','Joints'],p:'Fruit',h:'Europe, NW Africa',a:'Nature\'s vitamin C bomb — rose hip extract reduces joint pain and boosts immunity.',t:'shrub',c:'#d84040',s:72},
+    {n:'Spearmint',l:'Mentha spicata',u:['Digestion','Breathing','Stress relief','Blood sugar'],p:'Leaves',h:'Europe, Asia',a:'Gentler mint — carvone in spearmint improves digestion and hormonal balance.',t:'herb',c:'#28c870',s:45},
+    {n:'Lemon Balm',l:'Melissa officinalis',u:['Stress relief','Sleep','Digestion','Anti-inflammatory'],p:'Leaves',h:'South Europe, Mediterranean',a:'Melissa herb — calms nervous system, relieves anxiety, and promotes restful sleep.',t:'herb',c:'#a0c840',s:55},
+    {n:'Holy Basil Kapoor',l:'Ocimum gratissimum',u:['Anti-bacterial','Immunity','Skin care','Breathing'],p:'Leaves, Essential oil',h:'Africa, SE Asia, India',a:'Clove basil — powerful antimicrobial that fights respiratory and skin infections.',t:'herb',c:'#409840',s:62},
+    {n:'Senna',l:'Cassia senna',u:['Digestion','Detox','Anti-inflammatory','Liver'],p:'Leaves, Pods',h:'NE Africa, Arabia',a:'Natural laxative — anthraquinones safely stimulate intestinal motility.',t:'shrub',c:'#c0b818',s:75},
+    {n:'Cat\'s Claw',l:'Uncaria tomentosa',u:['Immunity','Anti-inflammatory','Joints','Antioxidant'],p:'Bark, Roots',h:'Amazon rainforest',a:'Peruvian vine — immunostimulant with anti-tumour and anti-inflammatory alkaloids.',t:'vine',c:'#a06030',s:68},
+    {n:'Licorice',l:'Glycyrrhiza glabra',u:['Breathing','Liver','Anti-inflammatory','Digestion'],p:'Roots',h:'Mediterranean, SW Asia',a:'Sweet root — soothes throat, protects liver, and modulates immune response.',t:'herb',c:'#b09030',s:62},
+    {n:'Ginseng',l:'Panax ginseng',u:['Energy','Immunity','Stress relief','Blood sugar'],p:'Roots',h:'Korea, NE China',a:'King of adaptogens — restores vital energy and enhances physical and mental performance.',t:'herb',c:'#d0b040',s:70},
+    {n:'Oregano',l:'Origanum vulgare',u:['Anti-bacterial','Immunity','Anti-inflammatory','Digestion'],p:'Leaves, Essential oil',h:'Mediterranean',a:'Potent antimicrobial herb — carvacrol and thymol fight bacterial and fungal infections.',t:'herb',c:'#80a038',s:50},
+    {n:'Thyme',l:'Thymus vulgaris',u:['Breathing','Anti-bacterial','Immunity','Digestion'],p:'Leaves, Essential oil',h:'Mediterranean',a:'Thymol-rich herb — dissolves mucus, kills bacteria, and eases cough and bronchitis.',t:'herb',c:'#78b048',s:48},
+    {n:'Sage',l:'Salvia officinalis',u:['Memory','Anti-inflammatory','Digestion','Skin care'],p:'Leaves',h:'Mediterranean',a:'Sacred sage — antimicrobial herb that sharpens memory and soothes hot flashes.',t:'herb',c:'#88a058',s:55},
+    {n:'Basil',l:'Ocimum basilicum',u:['Anti-inflammatory','Stress relief','Digestion','Anti-bacterial'],p:'Leaves',h:'Tropical Asia, India',a:'Sweet basil — adaptogenic herb that reduces inflammation and protects DNA.',t:'herb',c:'#38a840',s:52},
+    {n:'Papaya Leaf',l:'Carica papaya',u:['Digestion','Immunity','Liver','Blood sugar'],p:'Leaves',h:'Central America, tropics',a:'Dengue treatment — papain enzyme aids digestion and boosts platelet production.',t:'tree',c:'#c8a030',s:112},
+    {n:'Bitter Melon',l:'Momordica charantia',u:['Blood sugar','Liver','Digestion','Anti-inflammatory'],p:'Fruit, Leaves',h:'Tropical Asia, Africa',a:'Bitter gourd — most potent natural hypoglycemic used in naturopathy for diabetes.',t:'vine',c:'#509050',s:55},
+    {n:'Fenugreek',l:'Trigonella foenum-graecum',u:['Blood sugar','Digestion','Anti-inflammatory','Energy'],p:'Seeds, Leaves',h:'Mediterranean, South Asia',a:'Golden seeds — control blood sugar, reduce cholesterol, and aid digestive function.',t:'herb',c:'#a0b840',s:52},
+    {n:'Gotu Kola',l:'Centella asiatica',u:['Memory','Skin care','Circulation','Stress relief'],p:'Whole plant',h:'India, SE Asia',a:'Longevity herb — heals wounds, improves microcirculation, and sharpens the mind.',t:'creeper',c:'#40a870',s:46},
+    {n:'Holy Thistle',l:'Cnicus benedictus',u:['Liver','Digestion','Anti-inflammatory','Immunity'],p:'Aerial parts',h:'Mediterranean',a:'Blessed thistle — bitter herb that stimulates bile production and liver function.',t:'flower',c:'#a0a040',s:65},
+    {n:'Cleavers',l:'Galium aparine',u:['Detox','Liver','Skin care','Immunity'],p:'Aerial parts',h:'Europe, Asia, Americas',a:'Lymphatic cleanser — supports lymph flow and skin detoxification in naturopathy.',t:'vine',c:'#709050',s:50},
+    {n:'Chickweed',l:'Stellaria media',u:['Skin care','Anti-inflammatory','Detox','Joints'],p:'Aerial parts',h:'Europe, naturalized worldwide',a:'Cooling herb — soothes itchy skin, reduces inflammation, and supports detox.',t:'herb',c:'#90c870',s:38},
+    {n:'Plantain',l:'Plantago major',u:['Respiratory','Wound healing','Anti-inflammatory','Digestion'],p:'Leaves, Seeds',h:'Europe, Asia, naturalized worldwide',a:'The travelling herb — antibacterial leaf heals wounds and soothes respiratory tract.',t:'herb',c:'#688048',s:48}
+  ]},
+U:{name:'Unani Garden',col:'#224466',bc:'rgba(34,68,102,0.3)',tc:'#44aadd',
+  filters:['Fever','Liver','Kidney','Joints','Skin','Respiratory','Digestive','Nerves','Anti-inflammatory','Heart','Blood','Brain','Immunity','Detox','Aphrodisiac'],
+  plants:[
+    {n:'Mulethi',l:'Glycyrrhiza glabra',u:['Respiratory','Liver','Anti-inflammatory','Digestive'],p:'Roots, Rhizome',h:'Mediterranean, Central Asia',a:'Sweet liquorice root — most prescribed Unani herb for respiratory and liver ailments.',t:'herb',c:'#c08808',s:65},
+    {n:'Kalonji',l:'Nigella sativa',u:['Immunity','Respiratory','Anti-inflammatory','Digestive'],p:'Seeds, Oil',h:'SW Asia, North Africa',a:'Blessed black seed — broad-spectrum immune modulator referenced in Islamic medicine.',t:'herb',c:'#484848',s:52},
+    {n:'Senna',l:'Cassia senna',u:['Digestive','Liver','Detox','Fever'],p:'Leaves, Pods',h:'NE Africa, Arabian Peninsula',a:'Classic Unani purgative — anthraquinones gently stimulate intestinal motility.',t:'shrub',c:'#c0b818',s:75},
+    {n:'Rose (Gulab)',l:'Rosa damascena',u:['Fever','Skin','Heart','Nerves'],p:'Petals, Distilled water',h:'Turkey, Bulgaria, Iran',a:'Damascene rose — cooling, heart-toning, and skin-beautifying in Unani medicine.',t:'flower',c:'#d83858',s:70},
+    {n:'Sandalwood',l:'Santalum album',u:['Fever','Skin','Kidney','Nerves'],p:'Heartwood, Essential oil',h:'South India, Indonesia',a:'Sacred sandalwood — cooling and antibacterial, used for urinary and skin diseases.',t:'tree',c:'#c07830',s:105},
+    {n:'Ginger',l:'Zingiber officinale',u:['Digestive','Joints','Anti-inflammatory','Respiratory'],p:'Rhizome',h:'South Asia, West Africa',a:'Warming spice-root — gingerols reduce inflammation and stimulate digestion.',t:'herb',c:'#d89818',s:60},
+    {n:'Henna',l:'Lawsonia inermis',u:['Skin','Fever','Liver','Anti-inflammatory'],p:'Leaves, Bark, Flowers',h:'N Africa, South Asia',a:'Ancient Unani herb — cooling leaves treat burns, fungal infections and fever.',t:'shrub',c:'#78a838',s:82},
+    {n:'Ajwain',l:'Trachyspermum ammi',u:['Digestive','Respiratory','Anti-inflammatory','Kidney'],p:'Seeds',h:'India, Egypt, Pakistan',a:'Carom seeds — thymol content makes it a potent digestive and respiratory remedy.',t:'herb',c:'#c8b030',s:48},
+    {n:'Ashgandh',l:'Withania coagulans',u:['Joints','Nerves','Liver','Anti-inflammatory'],p:'Fruits, Roots',h:'India, Afghanistan',a:'Coagulating withania — Unani nervine tonic for joint pain and nervous weakness.',t:'shrub',c:'#b07050',s:75},
+    {n:'Isbagol',l:'Plantago ovata',u:['Digestive','Liver','Joints','Detox'],p:'Husk, Seeds',h:'Mediterranean, NW India',a:'Psyllium husk — world\'s most used dietary fiber for constipation and cholesterol.',t:'herb',c:'#c0c090',s:48},
+    {n:'Atees',l:'Aconitum heterophyllum',u:['Fever','Digestive','Nerves','Anti-inflammatory'],p:'Roots',h:'Himalayas',a:'Non-poisonous aconite — Unani antipyretic and digestive tonic safe for children.',t:'herb',c:'#7060c0',s:58},
+    {n:'Zeera (Cumin)',l:'Cuminum cyminum',u:['Digestive','Liver','Anti-inflammatory','Immunity'],p:'Seeds',h:'Mediterranean, SW Asia',a:'Essential Unani spice — stimulates digestive enzymes and reduces bloating.',t:'herb',c:'#c09840',s:50},
+    {n:'Behman Surkh',l:'Centaurea behen',u:['Heart','Nerves','Brain','Anti-inflammatory'],p:'Roots',h:'Mediterranean, W Asia',a:'Red centaurea — Unani cardiac and neural tonic strengthening the heart and mind.',t:'herb',c:'#d05888',s:58},
+    {n:'Tukhm-e-Khurfa',l:'Portulaca oleracea',u:['Liver','Kidney','Anti-inflammatory','Blood'],p:'Seeds, Leaves',h:'Mediterranean, Asia',a:'Purslane seeds — highest plant source of omega-3s, cooling hepatoprotective herb.',t:'herb',c:'#d0d050',s:44},
+    {n:'Zafran',l:'Crocus sativus',u:['Nerves','Heart','Blood','Anti-inflammatory'],p:'Stigmas (saffron)',h:'Kashmir, Iran, Spain',a:'Royal saffron — most expensive spice, Unani cardiac and neural tonic.',t:'flower',c:'#e0a020',s:38},
+    {n:'Darchini',l:'Cinnamomum verum',u:['Digestive','Blood','Joints','Anti-inflammatory'],p:'Bark, Essential oil',h:'Sri Lanka, India',a:'True cinnamon — regulates blood sugar, improves digestion, fights inflammation.',t:'tree',c:'#c07040',s:108},
+    {n:'Habbe Amber',l:'Ambergris preparation',u:['Heart','Nerves','Brain','Aphrodisiac'],p:'Amber (processed)',h:'Indian Ocean',a:'Ambergris compound — Unani cardiac and aphrodisiac preparation strengthening vitality.',t:'herb',c:'#d0c080',s:42},
+    {n:'Tukhm-e-Malkangni',l:'Celastrus paniculatus',u:['Brain','Nerves','Memory','Joints'],p:'Seeds, Oil',h:'India, SE Asia',a:'Intellect tree — seed oil enhances memory, used as Unani brain tonic for centuries.',t:'tree',c:'#e08020',s:100},
+    {n:'Aslussoos',l:'Glycyrrhiza glabra',u:['Respiratory','Blood','Liver','Anti-inflammatory'],p:'Roots',h:'W Asia, Mediterranean',a:'Same as Mulethi but used in Unani sweet preparations for respiratory conditions.',t:'herb',c:'#c0a020',s:58},
+    {n:'Burada Khashkhash',l:'Papaver somniferum',u:['Nerves','Respiratory','Digestive','Joints'],p:'Seed capsule (non-narcotic)',h:'Mediterranean, SW Asia',a:'Poppy seed preparation — Unani antispasmodic for respiratory and nervous conditions.',t:'herb',c:'#e0c0d0',s:55},
+    {n:'Hulba',l:'Trigonella foenum-graecum',u:['Digestive','Blood','Joints','Anti-inflammatory'],p:'Seeds',h:'Mediterranean, S Asia',a:'Fenugreek in Unani — warms the stomach, dissolves phlegm, reduces blood sugar.',t:'herb',c:'#a0b840',s:50},
+    {n:'Marjoram',l:'Origanum majorana',u:['Digestive','Nerves','Respiratory','Joints'],p:'Aerial parts',h:'Mediterranean',a:'Sweet marjoram — Unani herb for cold temperament conditions of digestion and nerves.',t:'herb',c:'#80a040',s:55},
+    {n:'Sumaq',l:'Rhus coriaria',u:['Digestive','Liver','Fever','Anti-inflammatory'],p:'Fruit',h:'Mediterranean, SW Asia',a:'Sumac berry — acidic astringent that treats diarrhea and cools the body.',t:'shrub',c:'#c04040',s:72},
+    {n:'Badranjboya',l:'Melissa officinalis',u:['Heart','Nerves','Digestive','Anti-inflammatory'],p:'Aerial parts',h:'Mediterranean, W Asia',a:'Lemon balm in Unani — cools the heart, calms nerves, and relieves palpitations.',t:'herb',c:'#a0c840',s:55},
+    {n:'Afsanteen',l:'Artemisia absinthium',u:['Digestive','Liver','Fever','Anti-inflammatory'],p:'Aerial parts',h:'Europe, W Asia',a:'Wormwood — Unani bitter tonic for liver function and expelling intestinal parasites.',t:'herb',c:'#a0a820',s:62},
+    {n:'Tukhm-e-Shabtareh',l:'Lepidium sativum',u:['Respiratory','Digestive','Immunity','Anti-inflammatory'],p:'Seeds',h:'N Africa, W Asia, India',a:'Garden cress seeds — hot and dry temperament herb clearing phlegm and strengthening lungs.',t:'herb',c:'#c0d030',s:48},
+    {n:'Burada Sandal',l:'Santalum album (powder)',u:['Fever','Skin','Heart','Nerves'],p:'Wood powder',h:'South India',a:'Sandalwood powder in Unani — cooling paste applied for fever and skin inflammation.',t:'tree',c:'#d0b070',s:100},
+    {n:'Kafoor',l:'Cinnamomum camphora',u:['Fever','Skin','Anti-bacterial','Respiratory'],p:'Crystalline extract',h:'India, SE Asia',a:'Camphor — strong cooling agent used in Unani for high fever and skin infections.',t:'tree',c:'#f0f0e0',s:110},
+    {n:'Mako',l:'Solanum nigrum',u:['Liver','Fever','Skin','Anti-inflammatory'],p:'Whole plant',h:'Tropical regions worldwide',a:'Black nightshade — liver tonic and febrifuge used in Unani and folk medicine.',t:'shrub',c:'#484860',s:62},
+    {n:'Rewand Chini',l:'Rheum palmatum',u:['Digestive','Liver','Detox','Anti-inflammatory'],p:'Rhizome',h:'China, Tibet',a:'Chinese rhubarb — Unani strong purgative and liver tonic for chronic constipation.',t:'herb',c:'#c05050',s:78},
+    {n:'Barg-e-Sana',l:'Cassia angustifolia',u:['Digestive','Liver','Detox','Fever'],p:'Leaves',h:'Arabian Peninsula, India',a:'Indian senna leaves — milder than pods, used in Unani for gentle colon cleansing.',t:'shrub',c:'#c0c020',s:70},
+    {n:'Tukham-e-Kasoos',l:'Cuscuta reflexa',u:['Liver','Kidney','Anti-inflammatory','Nerves'],p:'Seeds',h:'India, W Asia',a:'Dodder seeds — Unani tonic for liver weakness and nervous system disorders.',t:'vine',c:'#e09040',s:52},
+    {n:'Zanjabeel',l:'Zingiber officinale',u:['Digestive','Joints','Respiratory','Anti-inflammatory'],p:'Dried rhizome',h:'South Asia',a:'Dried ginger — hotter than fresh ginger, Unani remedy for cold diseases and arthritis.',t:'herb',c:'#d0a018',s:60},
+    {n:'Ood Hindi',l:'Aquilaria agallocha',u:['Nerves','Heart','Skin','Anti-inflammatory'],p:'Resinous wood',h:'Assam, SE Asia',a:'Agarwood — most prized Unani oud, used as cardiac and neural tonic.',t:'tree',c:'#604020',s:120},
+    {n:'Anar (Pomegranate)',l:'Punica granatum',u:['Digestive','Liver','Blood','Anti-inflammatory'],p:'Fruit, Rind, Flower',h:'Iran, India, Mediterranean',a:'Sacred pomegranate — every part is medicinal in Unani for digestive and liver health.',t:'shrub',c:'#d04050',s:88},
+    {n:'Beh Dana',l:'Cydonia oblonga',u:['Digestive','Nerves','Blood','Fever'],p:'Seeds, Fruit',h:'SW Asia, Mediterranean',a:'Quince seeds — cooling mucilage treats intestinal inflammation and heart palpitations.',t:'tree',c:'#e0b040',s:105},
+    {n:'Zeerak Safaid',l:'Carum carvi',u:['Digestive','Respiratory','Anti-inflammatory','Nerves'],p:'Seeds',h:'N Europe, W Asia',a:'Caraway seeds — Unani digestive carminative that expels gas and relieves colic.',t:'herb',c:'#c0b838',s:48},
+    {n:'Tukhm-e-Karafs',l:'Apium graveolens',u:['Kidney','Digestive','Anti-inflammatory','Blood'],p:'Seeds',h:'Mediterranean, South Asia',a:'Celery seeds — Unani diuretic and kidney tonic reducing uric acid and blood pressure.',t:'herb',c:'#88b840',s:55},
+    {n:'Qaranfal',l:'Syzygium aromaticum',u:['Digestive','Nerves','Anti-bacterial','Anti-inflammatory'],p:'Flower buds',h:'Maluku Islands, SE Asia',a:'Cloves — eugenol is a powerful natural anesthetic and antimicrobial agent.',t:'tree',c:'#804830',s:108},
+    {n:'Tukhm-e-Reyhan',l:'Ocimum basilicum',u:['Nerves','Digestive','Anti-inflammatory','Fever'],p:'Seeds',h:'India, Mediterranean',a:'Basil seeds — cooling mucilage used in Unani sharbat drinks for fever and heat.',t:'herb',c:'#40a840',s:52},
+    {n:'Habbul Aas',l:'Myrtus communis',u:['Respiratory','Skin','Anti-bacterial','Liver'],p:'Leaves, Berries',h:'Mediterranean',a:'Myrtle — astringent and antibacterial leaves treat respiratory and skin infections.',t:'shrub',c:'#409840',s:72},
+    {n:'Kaknaj',l:'Physalis alkekengi',u:['Kidney','Liver','Fever','Anti-inflammatory'],p:'Calyx (bladder cherry)',h:'Europe, W Asia',a:'Winter cherry — diuretic and febrifuge clearing kidney stones and reducing fever.',t:'herb',c:'#e06820',s:58},
+    {n:'Mastagi Roomi',l:'Pistacia lentiscus',u:['Digestive','Liver','Blood','Anti-inflammatory'],p:'Resin (mastic)',h:'Mediterranean islands',a:'Chios mastic — H. pylori destroyer and liver protectant from the Mediterranean.',t:'shrub',c:'#a0b820',s:78},
+    {n:'Tukhm-e-Gul-e-Khatmi',l:'Althaea officinalis',u:['Respiratory','Digestive','Skin','Kidney'],p:'Seeds, Root',h:'W Europe, W Asia',a:'Marshmallow root — mucilaginous soothing herb for throat, gut, and kidney irritation.',t:'herb',c:'#d0b0e0',s:65},
+    {n:'Buzidan',l:'Satureja hortensis',u:['Digestive','Anti-bacterial','Respiratory','Nerves'],p:'Aerial parts',h:'Mediterranean',a:'Summer savory — Unani digestive and antispasmodic herb for colic and lung infections.',t:'herb',c:'#88a040',s:48},
+    {n:'Heel Kalan',l:'Amomum subulatum',u:['Digestive','Respiratory','Heart','Anti-inflammatory'],p:'Seeds',h:'Eastern Himalayas',a:'Black cardamom — large cardamom pods warming respiratory and digestive tract.',t:'herb',c:'#604828',s:55},
+    {n:'Tukhm-e-Katan',l:'Linum usitatissimum',u:['Digestive','Anti-inflammatory','Respiratory','Blood'],p:'Seeds, Oil',h:'Mediterranean, India',a:'Flaxseeds — omega-3 rich mucilaginous seeds soothing digestive and respiratory tract.',t:'herb',c:'#9090d0',s:50},
+    {n:'Mastangi',l:'Teucrium polium',u:['Liver','Digestive','Fever','Joints'],p:'Aerial parts',h:'Mediterranean, W Asia',a:'Felty germander — Unani liver tonic and febrifuge used in Arab traditional medicine.',t:'herb',c:'#a0a858',s:52},
+    {n:'Baboona',l:'Anthemis nobilis',u:['Digestive','Nerves','Anti-inflammatory','Fever'],p:'Flowers',h:'W Europe, N Africa',a:'Roman chamomile — anti-spasmodic and anti-inflammatory flowers for colic and fever.',t:'flower',c:'#e0d030',s:50},
+    {n:'Heel Khurd',l:'Elettaria cardamomum',u:['Digestive','Respiratory','Heart','Nerves'],p:'Seeds',h:'South India, Sri Lanka',a:'Green cardamom — queen of spices, Unani cardiac and digestive tonic.',t:'herb',c:'#60b040',s:58}
+  ]},
+S:{name:'Siddha Garden',col:'#662244',bc:'rgba(102,34,68,0.3)',tc:'#dd44aa',
+  filters:['Fever','Skin disease','Liver','Wound healing','Digestive','Anemia','Bone health','Eye','Rejuvenation','Respiratory','Anti-bacterial','Nerves','Blood','Kidney','Anti-inflammatory'],
+  plants:[
+    {n:'Nilavembu',l:'Andrographis paniculata',u:['Fever','Liver','Anti-bacterial','Digestive'],p:'Whole plant',h:'South India, Sri Lanka',a:'King of Bitters in Siddha — primary herb for dengue, malaria, and fever management.',t:'herb',c:'#189890',s:62},
+    {n:'Keelanelli',l:'Phyllanthus niruri',u:['Liver','Kidney','Digestive','Fever'],p:'Whole plant',h:'Tropical regions',a:'Stone breaker — dissolves kidney and gallstones, powerfully hepatoprotective.',t:'herb',c:'#389838',s:52},
+    {n:'Vilvam',l:'Aegle marmelos',u:['Digestive','Fever','Wound healing','Rejuvenation'],p:'Fruit, Leaves, Bark',h:'India, SE Asia',a:'Sacred bael tree — unripe fruit stops diarrhea, ripe fruit relieves constipation.',t:'tree',c:'#c89818',s:118},
+    {n:'Adathodai',l:'Justicia adhatoda',u:['Respiratory','Fever','Wound healing','Bone health'],p:'Leaves, Flowers, Roots',h:'India, Sri Lanka',a:'Malabar nut — vasicine bronchodilates airways, primary Siddha respiratory herb.',t:'shrub',c:'#3888c0',s:75},
+    {n:'Nochi',l:'Vitex negundo',u:['Bone health','Anti-inflammatory','Fever','Skin disease'],p:'Leaves, Seeds, Bark',h:'South & SE Asia',a:'Five-leaved chaste tree — leaf poultice for rheumatoid arthritis in Siddha medicine.',t:'shrub',c:'#6858c0',s:88},
+    {n:'Karisilankanni',l:'Eclipta alba',u:['Anemia','Liver','Skin disease','Eye'],p:'Whole plant',h:'Moist tropical regions',a:'Bhringraj — supreme Siddha herb for hair, liver, skin, and eye health.',t:'herb',c:'#18a8a0',s:50},
+    {n:'Thanneervittaan',l:'Sida rhombifolia',u:['Fever','Anti-bacterial','Wound healing','Respiratory'],p:'Roots, Leaves',h:'South India, tropics',a:'Country mallow — astringent roots treat fever, wounds, and respiratory infections.',t:'shrub',c:'#c0a040',s:65},
+    {n:'Korokkio',l:'Cassia auriculata',u:['Diabetes','Liver','Skin disease','Eye'],p:'Flowers, Seeds, Bark',h:'India, Sri Lanka',a:'Senna auriculata — Siddha primary remedy for diabetes and improving eyesight.',t:'shrub',c:'#d0a020',s:80},
+    {n:'Seenthil',l:'Tinospora cordifolia',u:['Fever','Liver','Immunity','Anti-inflammatory'],p:'Stem, Roots',h:'India, Sri Lanka',a:'Guduchi in Tamil tradition — Siddha divine nectar purifying blood and fighting fever.',t:'vine',c:'#28a858',s:68},
+    {n:'Nannari',l:'Hemidesmus indicus',u:['Blood','Skin disease','Liver','Kidney'],p:'Roots',h:'India, Sri Lanka',a:'Indian sarsaparilla — blood purifier treating skin diseases and liver disorders.',t:'vine',c:'#c06020',s:58},
+    {n:'Arugampul',l:'Cynodon dactylon',u:['Wound healing','Skin disease','Digestive','Anti-inflammatory'],p:'Whole plant',h:'India, tropics worldwide',a:'Doorba grass — Siddha wound healer, anticoagulant, and anti-inflammatory.',t:'grass',c:'#68b840',s:38},
+    {n:'Mukilai',l:'Commiphora wightii',u:['Anti-inflammatory','Bone health','Blood','Liver'],p:'Resin (guggul)',h:'India, Pakistan',a:'Indian bdellium — guggulsterones reduce cholesterol and treat arthritis.',t:'shrub',c:'#d09040',s:78},
+    {n:'Aavarampoo',l:'Senna auriculata (flower)',u:['Diabetes','Skin disease','Eye','Blood'],p:'Flowers',h:'South India, Sri Lanka',a:'Tanner\'s cassia flowers — Siddha treatment for diabetes with beautiful yellow blooms.',t:'flower',c:'#d8c020',s:55},
+    {n:'Kuppaimeni',l:'Acalypha indica',u:['Respiratory','Wound healing','Skin disease','Anti-bacterial'],p:'Leaves, Roots',h:'India, pantropical',a:'Indian acalypha — expectorant for respiratory infections and topical wound healer.',t:'herb',c:'#e04040',s:55},
+    {n:'Ilaneer',l:'Cocos nucifera (tender)',u:['Kidney','Fever','Digestive','Blood'],p:'Tender coconut water',h:'Tropical coasts worldwide',a:'Tender coconut — oral rehydration, kidney stones, and cooling in Siddha practice.',t:'tree',c:'#78c060',s:145},
+    {n:'Kadukkai',l:'Terminalia chebula',u:['Digestive','Rejuvenation','Eye','Anti-inflammatory'],p:'Fruit',h:'South & SE Asia',a:'Haritaki in Siddha — rejuvenating fruit that strengthens all five sense organs.',t:'tree',c:'#988028',s:110},
+    {n:'Seenthankottai',l:'Acacia concinna',u:['Skin disease','Anti-bacterial','Hair','Digestive'],p:'Pods, Leaves',h:'India, SE Asia',a:'Shikakai — natural hair cleanser and antimicrobial used in Siddha hair treatments.',t:'shrub',c:'#709830',s:82},
+    {n:'Thippili',l:'Piper longum',u:['Respiratory','Digestive','Anti-inflammatory','Anemia'],p:'Fruits, Roots',h:'India, SE Asia',a:'Long pepper — Siddha trikatu component that enhances drug bioavailability.',t:'vine',c:'#805030',s:55},
+    {n:'Milagu',l:'Piper nigrum',u:['Digestive','Respiratory','Fever','Anti-bacterial'],p:'Fruit (black pepper)',h:'Kerala, India',a:'King of spices in Siddha — piperine enhances absorption of all other herbs.',t:'vine',c:'#404040',s:58},
+    {n:'Omam',l:'Trachyspermum ammi',u:['Digestive','Respiratory','Anti-bacterial','Fever'],p:'Seeds',h:'India, Egypt',a:'Ajwain — Siddha instant remedy for stomach pain, bloating, and respiratory infections.',t:'herb',c:'#c8b030',s:48},
+    {n:'Vengai',l:'Pterocarpus marsupium',u:['Diabetes','Anti-inflammatory','Wound healing','Liver'],p:'Bark, Heartwood',h:'India, Sri Lanka',a:'Indian kino tree — pterostilbene in heartwood powerfully reduces blood glucose.',t:'tree',c:'#804828',s:128},
+    {n:'Sirukurinjan',l:'Gymnema sylvestre',u:['Diabetes','Digestive','Anti-inflammatory','Blood'],p:'Leaves',h:'India, tropical Africa',a:'Sugar destroyer — gymnemic acids block sugar absorption in intestine.',t:'vine',c:'#409848',s:55},
+    {n:'Vembu',l:'Azadirachta indica',u:['Skin disease','Anti-bacterial','Blood','Fever'],p:'Leaves, Bark, Oil',h:'India',a:'Neem in Siddha — supreme blood purifier and antibacterial for skin diseases.',t:'tree',c:'#289828',s:125},
+    {n:'Karunkurunai',l:'Indigofera tinctoria',u:['Liver','Skin disease','Anti-bacterial','Blood'],p:'Leaves, Roots',h:'India, Africa',a:'True indigo — hepatoprotective dye plant treating liver disorders and skin infections.',t:'shrub',c:'#4040c0',s:72},
+    {n:'Kolamavu',l:'Solanum trilobatum',u:['Respiratory','Anti-inflammatory','Anemia','Fever'],p:'Leaves, Fruits',h:'India, SE Asia',a:'Purple-fruited pea eggplant — Siddha respiratory herb treating asthma and anemia.',t:'shrub',c:'#8040c0',s:65},
+    {n:'Seenthil Kodi',l:'Tinospora sinensis',u:['Liver','Immunity','Fever','Anti-inflammatory'],p:'Stem',h:'South India',a:'Chinese guduchi — similar to T. cordifolia, used in Siddha for liver and immunity.',t:'vine',c:'#30a860',s:65},
+    {n:'Karisalai',l:'Eclipta prostrata',u:['Liver','Anemia','Eye','Hair'],p:'Whole plant',h:'Tropical regions',a:'Trailing eclipta — similar to Karisilankanni, specific for anemia and liver health.',t:'herb',c:'#20a0a0',s:48},
+    {n:'Kanikkonna',l:'Cassia fistula',u:['Skin disease','Fever','Anti-inflammatory','Liver'],p:'Flowers, Fruit pulp',h:'India, SE Asia',a:'Golden shower tree — Siddha treatment for skin diseases and fever.',t:'tree',c:'#d0b020',s:112},
+    {n:'Maruthonri',l:'Terminalia arjuna',u:['Heart','Bone health','Anti-inflammatory','Wound healing'],p:'Bark',h:'India',a:'Arjuna bark in Siddha — cardiac tonic for heart failure and artery strengthening.',t:'tree',c:'#8a6848',s:120},
+    {n:'Peraathi',l:'Croton tiglium',u:['Digestive','Skin disease','Anti-bacterial','Wound healing'],p:'Seeds, Oil',h:'India, SE Asia',a:'Croton oil plant — powerful purgative and topical antibacterial in Siddha practice.',t:'shrub',c:'#a04030',s:78},
+    {n:'Kallurundai',l:'Aerva lanata',u:['Kidney','Anti-inflammatory','Fever','Wound healing'],p:'Whole plant',h:'Africa, India',a:'Mountain knot grass — Siddha diuretic for kidney stones and urinary infections.',t:'herb',c:'#e0e0c0',s:52},
+    {n:'Agathiilai',l:'Sesbania grandiflora',u:['Fever','Liver','Eye','Anti-inflammatory'],p:'Leaves, Flowers, Bark',h:'India, SE Asia',a:'Agathi leaves — Siddha treatment for fever, liver disorders, and improving vision.',t:'tree',c:'#e0e8a0',s:115},
+    {n:'Kodiveli',l:'Plumbago zeylanica',u:['Digestive','Skin disease','Anti-inflammatory','Bone health'],p:'Roots',h:'India, SE Asia',a:'White leadwort — digestive stimulant and anti-arthritic in Siddha formulations.',t:'herb',c:'#d06020',s:60},
+    {n:'Ponnankanni',l:'Alternanthera sessilis',u:['Eye','Skin disease','Anemia','Anti-inflammatory'],p:'Whole plant',h:'India, SE Asia, Africa',a:'Sessile joyweed — Siddha herb for improving eye health and treating skin diseases.',t:'herb',c:'#a0e060',s:45},
+    {n:'Murungai',l:'Moringa oleifera',u:['Anemia','Anti-inflammatory','Diabetes','Digestive'],p:'Leaves, Seeds, Pods',h:'India',a:'Drumstick tree — Siddha superfood correcting anemia and nutritional deficiencies.',t:'tree',c:'#409040',s:125},
+    {n:'Siru Peelai',l:'Phyllanthus amarus',u:['Liver','Kidney','Fever','Anti-bacterial'],p:'Whole plant',h:'India, SE Asia, Africa',a:'Stonebreaker — related to Keelanelli, equally potent for liver and kidney stones.',t:'herb',c:'#40a840',s:48},
+    {n:'Ukkiram',l:'Strychnos nux-vomica',u:['Nerves','Digestive','Bone health','Anti-inflammatory'],p:'Seeds (processed)',h:'India, SE Asia',a:'Nux vomica in Siddha — processed seeds treat nervous system disorders and paralysis.',t:'tree',c:'#d08030',s:95},
+    {n:'Chukku',l:'Zingiber officinale (dried)',u:['Digestive','Respiratory','Anemia','Anti-inflammatory'],p:'Dried rhizome',h:'South Asia',a:'Dried ginger — Siddha trikatu component, hotter and more pungent than fresh ginger.',t:'herb',c:'#d0a018',s:60},
+    {n:'Athimathuram',l:'Glycyrrhiza glabra',u:['Respiratory','Anti-inflammatory','Digestive','Rejuvenation'],p:'Roots',h:'Mediterranean, C Asia',a:'Licorice in Siddha — rasayana herb rejuvenating the body and soothing throat.',t:'herb',c:'#c08808',s:60},
+    {n:'Kilanelli',l:'Phyllanthus debilis',u:['Liver','Fever','Anti-bacterial','Kidney'],p:'Whole plant',h:'India, SE Asia',a:'Delicate phyllanthus — another stone breaker species used in Siddha liver formulas.',t:'herb',c:'#48b040',s:48},
+    {n:'Thumbai',l:'Leucas aspera',u:['Respiratory','Skin disease','Anti-bacterial','Wound healing'],p:'Leaves, Flowers',h:'India, SE Asia',a:'Thumbe flowers — Siddha respiratory herb and wound disinfectant.',t:'herb',c:'#e8e8d0',s:52},
+    {n:'Mudakku Paruthi',l:'Cardiospermum halicacabum',u:['Bone health','Anti-inflammatory','Skin disease','Wound healing'],p:'Leaves, Roots',h:'India, tropics',a:'Balloon vine — anti-arthritic leaf juice applied topically for joint pain.',t:'vine',c:'#90c850',s:48},
+    {n:'Veliparuthi',l:'Pergularia daemia',u:['Respiratory','Digestive','Anti-bacterial','Fever'],p:'Leaves, Roots',h:'India, Africa',a:'Trellis vine — Siddha emetic and expectorant clearing phlegm from respiratory tract.',t:'vine',c:'#c8a840',s:55},
+    {n:'Kottam',l:'Saussurea lappa',u:['Skin disease','Anti-inflammatory','Respiratory','Bone health'],p:'Roots',h:'Kashmir Himalayas',a:'Costus root — anti-inflammatory Siddha herb for skin diseases and asthma.',t:'herb',c:'#9060a0',s:70},
+    {n:'Neem Flower',l:'Azadirachta indica (flower)',u:['Digestive','Diabetes','Anti-bacterial','Skin disease'],p:'Flowers',h:'India',a:'Neem flowers — Siddha preparation for diabetes and digestive fire correction.',t:'tree',c:'#38a038',s:118},
+    {n:'Amukkara',l:'Withania somnifera',u:['Nerves','Energy','Anti-inflammatory','Bone health'],p:'Roots',h:'India, N Africa',a:'Ashwagandha in Siddha — tonic for nervous weakness, fatigue, and osteoporosis.',t:'shrub',c:'#c07830',s:82},
+    {n:'Vaza Poo',l:'Musa paradisiaca (flower)',u:['Digestive','Anemia','Diabetes','Anti-inflammatory'],p:'Flower (banana blossom)',h:'India, tropics',a:'Banana flower — Siddha treatment for anemia and diabetes with rich iron content.',t:'herb',c:'#c04880',s:95},
+    {n:'Karuvelam',l:'Acacia nilotica',u:['Anti-bacterial','Digestive','Wound healing','Skin disease'],p:'Gum, Bark, Pods',h:'India, Africa, W Asia',a:'Indian gum arabic tree — astringent gum treats diarrhea and infected wounds.',t:'tree',c:'#c0a020',s:115},
+    {n:'Thazhampoo',l:'Pandanus odoratissimus',u:['Nerves','Anti-inflammatory','Skin disease','Digestive'],p:'Flowers, Leaves, Roots',h:'India, SE Asia coasts',a:'Screw pine — Siddha aromatic used for nervous disorders and skin inflammation.',t:'herb',c:'#a0e080',s:75},
+    {n:'Inji',l:'Zingiber officinale (fresh)',u:['Digestive','Anti-inflammatory','Respiratory','Anemia'],p:'Fresh rhizome',h:'South Asia',a:'Fresh ginger — trikatu component that kindles digestive fire in Siddha medicine.',t:'herb',c:'#e0c030',s:62}
+  ]},
+H:{name:'Homeopathy Garden',col:'#664422',bc:'rgba(102,68,34,0.3)',tc:'#ddaa44',
+  filters:['Acute fever','Chronic pain','Skin eruptions','Anxiety','Digestive','Respiratory','Joints','Headache','Fatigue','Sleep','Trauma','Infection','Heart','Nerves','Hormones'],
+  plants:[
+    {n:'Arnica',l:'Arnica montana',u:['Trauma','Chronic pain','Skin eruptions','Fatigue'],p:'Flowers, Roots',h:'Mountain meadows of Europe',a:'First-aid remedy — any physical trauma, bruising, or soreness responds to Arnica 30C.',t:'flower',c:'#d8c018',s:56},
+    {n:'Belladonna',l:'Atropa belladonna',u:['Acute fever','Headache','Infection','Skin eruptions'],p:'Leaves, Roots, Berries',h:'Europe, North Africa',a:'Deadly nightshade — sudden violent fevers with throbbing headache respond to Belladonna.',t:'shrub',c:'#c02858',s:80},
+    {n:'Chamomilla',l:'Matricaria chamomilla',u:['Digestive','Sleep','Anxiety','Chronic pain'],p:'Flowers',h:'Europe, Asia',a:'Extreme irritability and teething pain — the number one remedy for teething infants.',t:'flower',c:'#d8c828',s:50},
+    {n:'Pulsatilla',l:'Pulsatilla vulgaris',u:['Hormones','Sleep','Respiratory','Headache'],p:'Aerial parts',h:'European meadows',a:'Wind flower — for yielding personalities with hormonal issues and catarrhal conditions.',t:'flower',c:'#8058c0',s:48},
+    {n:'Rhus Toxicodendron',l:'Toxicodendron radicans',u:['Joints','Skin eruptions','Chronic pain','Fatigue'],p:'Fresh leaves',h:'North America',a:'Poison ivy — rheumatic stiffness better from motion and herpetic skin eruptions.',t:'vine',c:'#389038',s:62},
+    {n:'Nux Vomica',l:'Strychnos nux-vomica',u:['Digestive','Headache','Fatigue','Anxiety'],p:'Seeds',h:'India, SE Asia',a:'Over-worked remedy — indigestion, hangover, and irritability from excesses.',t:'tree',c:'#c87830',s:90},
+    {n:'Calendula',l:'Calendula officinalis',u:['Skin eruptions','Trauma','Infection','Chronic pain'],p:'Flowers',h:'Mediterranean, Central Asia',a:'Marigold — top external remedy for cuts, wounds, and inflammatory skin conditions.',t:'flower',c:'#d88818',s:54},
+    {n:'Sepia',l:'Sepia officinalis (cuttlefish)',u:['Hormones','Fatigue','Anxiety','Digestive'],p:'Ink (potentized)',h:'Mediterranean, Atlantic',a:'Cuttlefish ink — leading remedy for female hormonal exhaustion and bearing-down sensation.',t:'herb',c:'#885858',s:42},
+    {n:'Sulphur',l:'Sulphur (element)',u:['Skin eruptions','Chronic pain','Digestive','Fatigue'],p:'Elemental sulphur',h:'Volcanic regions worldwide',a:'Constitutional sulphur — red burning skin, offensive discharges, and chronic skin diseases.',t:'herb',c:'#e0d020',s:40},
+    {n:'Lycopodium',l:'Lycopodium clavatum',u:['Digestive','Chronic pain','Anxiety','Fatigue'],p:'Spores',h:'Europe, N Americas',a:'Club moss spores — right-sided complaints, bloating after eating, and performance anxiety.',t:'herb',c:'#a0c040',s:38},
+    {n:'Natrum Muriaticum',l:'Sodium chloride (potentized)',u:['Anxiety','Headache','Skin eruptions','Hormones'],p:'Common salt',h:'Worldwide',a:'Sea salt — great grief, introverted personalities, headaches in the sun.',t:'herb',c:'#e8e8f0',s:38},
+    {n:'Lachesis',l:'Bushmaster snake (venom)',u:['Heart','Hormones','Infection','Skin eruptions'],p:'Snake venom (potentized)',h:'South America',a:'Bushmaster venom — left-sided complaints, jealous personalities, menopausal flushes.',t:'herb',c:'#804020',s:38},
+    {n:'Phosphorus',l:'Phosphorus (element)',u:['Respiratory','Anxiety','Fatigue','Infection'],p:'Element phosphorus',h:'Chemical preparation',a:'Phosphorus constitution — hemorrhages, pneumonia, and fear of being alone.',t:'herb',c:'#e0c880',s:38},
+    {n:'Calcarea Carbonica',l:'Calcium carbonate (oyster)',u:['Chronic pain','Fatigue','Anxiety','Digestive'],p:'Middle layer of oyster shell',h:'Worldwide (oceans)',a:'Oyster shell calcium — slow, chilly, hard-working constitution with anxiety about health.',t:'herb',c:'#f0f0e0',s:38},
+    {n:'Apis Mellifica',l:'Apis mellifera (bee)',u:['Skin eruptions','Infection','Joints','Acute fever'],p:'Live bee (potentized)',h:'Worldwide',a:'Honeybee — burning, stinging pain relieved by cold, urticaria, and edema.',t:'flower',c:'#e0c020',s:42},
+    {n:'Bryonia',l:'Bryonia alba',u:['Respiratory','Joints','Headache','Digestive'],p:'Fresh root',h:'Europe, W Asia',a:'White bryony — dryness, stitching pains worse from motion, irritable sick person.',t:'vine',c:'#609040',s:65},
+    {n:'Gelsemium',l:'Gelsemium sempervirens',u:['Anxiety','Headache','Fatigue','Acute fever'],p:'Root bark',h:'SE USA, Mexico',a:'Yellow jasmine — anticipatory anxiety, dullness, drooping, and flu-like weakness.',t:'vine',c:'#e0d040',s:58},
+    {n:'Ignatia',l:'Strychnos ignatii',u:['Anxiety','Sleep','Headache','Digestive'],p:'Seeds',h:'Philippines, SE Asia',a:'St. Ignatius bean — acute grief, sighing, hysterical complaints after emotional shock.',t:'tree',c:'#808040',s:88},
+    {n:'Aconite',l:'Aconitum napellus',u:['Acute fever','Anxiety','Respiratory','Joints'],p:'Whole plant',h:'Mountain regions of Europe',a:'Monk\'s hood — acute shock, sudden high fever after cold dry wind, fear of death.',t:'flower',c:'#5060e0',s:65},
+    {n:'Mercurius',l:'Mercurius solubilis',u:['Infection','Skin eruptions','Joints','Digestive'],p:'Mercury (potentized)',h:'Chemical preparation',a:'Mercury — offensive secretions, trembling, aggravated by heat and cold equally.',t:'herb',c:'#c0c0c0',s:38},
+    {n:'Staphysagria',l:'Delphinium staphisagria',u:['Anxiety','Chronic pain','Skin eruptions','Digestive'],p:'Seeds',h:'Mediterranean, W Asia',a:'Stavesacre — suppressed anger, surgical wounds that do not heal, cystitis.',t:'flower',c:'#7060b0',s:62},
+    {n:'Thuja',l:'Thuja occidentalis',u:['Skin eruptions','Infection','Joints','Respiratory'],p:'Fresh young twigs',h:'NE North America',a:'White cedar — fixed ideas, warts and condylomata, vaccine effects.',t:'tree',c:'#409048',s:100},
+    {n:'Bellis Perennis',l:'Bellis perennis',u:['Trauma','Chronic pain','Fatigue','Skin eruptions'],p:'Flowers',h:'Europe, naturalized worldwide',a:'Daisy — deep tissue injuries that Arnica does not reach, surgical trauma.',t:'flower',c:'#f0f0f0',s:42},
+    {n:'Hypericum',l:'Hypericum perforatum',u:['Trauma','Chronic pain','Skin eruptions','Infection'],p:'Flowering tops',h:'Europe, Asia',a:'St. John\'s Wort — nerve-rich injury points, crushed fingers, tailbone injuries.',t:'flower',c:'#e0c820',s:62},
+    {n:'Hepar Sulph',l:'Calcium sulphide',u:['Infection','Skin eruptions','Respiratory','Chronic pain'],p:'Calcium sulphide',h:'Chemical preparation',a:'Calcium sulphide — suppurating infections, oversensitivity to cold, chilliness.',t:'herb',c:'#d0c080',s:38},
+    {n:'Silicea',l:'Silicon dioxide',u:['Chronic pain','Skin eruptions','Fatigue','Infection'],p:'Flint (potentized)',h:'Natural mineral',a:'Flint — pushes out foreign bodies, slow healing, chilly, yielding personalities.',t:'herb',c:'#e8e8e0',s:38},
+    {n:'Aurum',l:'Gold (element)',u:['Heart','Anxiety','Headache','Chronic pain'],p:'Gold (potentized)',h:'Natural metal',a:'Gold — profound depression, suicidal thoughts, heart conditions, and high ambition.',t:'herb',c:'#e0c030',s:38},
+    {n:'Causticum',l:'Potassium hydroxide prep',u:['Chronic pain','Nerves','Anxiety','Respiratory'],p:'Hahnemann\'s tinctura acris',h:'Chemical preparation',a:'Causticum — progressive paralysis, deep burns, sympathy for suffering of others.',t:'herb',c:'#808880',s:38},
+    {n:'Graphites',l:'Carbon (amorphous)',u:['Skin eruptions','Hormones','Digestive','Chronic pain'],p:'Graphite carbon',h:'Natural mineral',a:'Graphite — crusty skin eruptions, constipation with large knotty stools, obesity.',t:'herb',c:'#606060',s:38},
+    {n:'Kali Carbonicum',l:'Potassium carbonate',u:['Respiratory','Chronic pain','Fatigue','Digestive'],p:'Salt of potassium',h:'Chemical preparation',a:'Potassium carbonate — stitching pains, cold sensitivity, exhaustion, rigidity.',t:'herb',c:'#d0d0a0',s:38},
+    {n:'Veratrum Album',l:'Veratrum album',u:['Digestive','Acute fever','Chronic pain','Fatigue'],p:'Rhizome',h:'Alpine Europe',a:'White hellebore — violent vomiting and diarrhea simultaneously, collapse and coldness.',t:'herb',c:'#d0e0d0',s:65},
+    {n:'Spigelia',l:'Spigelia anthelmia',u:['Heart','Headache','Chronic pain','Nerves'],p:'Dried herb',h:'South America, Caribbean',a:'Pink root — left-sided heart conditions, violent palpitations, and neuralgia.',t:'herb',c:'#e080a0',s:52},
+    {n:'Ruta Graveolens',l:'Ruta graveolens',u:['Chronic pain','Trauma','Joints','Fatigue'],p:'Whole herb',h:'Mediterranean',a:'Rue — injuries to periosteum and tendons, bruised bone pain, eyestrain.',t:'herb',c:'#a0b830',s:58},
+    {n:'Cantharis',l:'Lytta vesicatoria (beetle)',u:['Infection','Skin eruptions','Acute fever','Chronic pain'],p:'Dried beetle',h:'S Europe',a:'Spanish fly — burning urination, second-degree burns, intense inflammation.',t:'herb',c:'#c0a820',s:40},
+    {n:'Magnesia Phosphorica',l:'Magnesium phosphate',u:['Chronic pain','Digestive','Nerves','Headache'],p:'Magnesium phosphate salt',h:'Chemical preparation',a:'Magnesia phos — cramping pains better from warmth and pressure, classic sciatica.',t:'herb',c:'#e0e0d0',s:38},
+    {n:'Conium',l:'Conium maculatum',u:['Chronic pain','Nerves','Hormones','Anxiety'],p:'Fresh plant',h:'Europe, N Africa',a:'Hemlock — ascending paralysis, sexual debility, glandular enlargements.',t:'herb',c:'#c0d080',s:68},
+    {n:'Drosera',l:'Drosera rotundifolia',u:['Respiratory','Chronic pain','Infection','Fatigue'],p:'Whole plant',h:'Peat bogs of Europe, N Americas',a:'Sundew — deep spasmodic cough like whooping cough, laryngeal irritation.',t:'herb',c:'#d05050',s:50},
+    {n:'Cina',l:'Artemisia cina',u:['Digestive','Anxiety','Sleep','Infection'],p:'Unexpanded flower heads',h:'Central Asia',a:'Wormseed — intestinal parasites with irritability, nose picking, grinding teeth.',t:'herb',c:'#a0a820',s:48},
+    {n:'Antimonium Tartaricum',l:'Antimony tartrate',u:['Respiratory','Digestive','Skin eruptions','Fatigue'],p:'Salt preparation',h:'Chemical preparation',a:'Tartar emetic — excess mucus in lungs, rattling breath, pustular eruptions.',t:'herb',c:'#b0c0c0',s:38},
+    {n:'Ferrum Metallicum',l:'Iron (metallic)',u:['Fatigue','Anemia-like','Chronic pain','Heart'],p:'Iron (potentized)',h:'Natural metal',a:'Iron metal — false plethora, flushing, anemia, joints that crack and hurt.',t:'herb',c:'#a06040',s:38},
+    {n:'China Officinalis',l:'Cinchona officinalis',u:['Fatigue','Digestive','Chronic pain','Acute fever'],p:'Bark',h:'Andes mountains',a:'Peruvian bark (quinine source) — periodic fevers, debility from fluid loss.',t:'tree',c:'#c09050',s:95},
+    {n:'Opium',l:'Papaver somniferum',u:['Acute fever','Anxiety','Digestive','Fatigue'],p:'Dried latex (potentized)',h:'SW Asia, Mediterranean',a:'Opium poppy — painless conditions with twitching, constipation with no urge.',t:'flower',c:'#e0c0d0',s:52},
+    {n:'Colocynthis',l:'Citrullus colocynthis',u:['Chronic pain','Digestive','Nerves','Anxiety'],p:'Fruit pulp',h:'Mediterranean, W Asia',a:'Bitter cucumber — cramping pains doubled up, worse from anger, neuralgias.',t:'vine',c:'#e0d060',s:55},
+    {n:'Allium Cepa',l:'Allium cepa',u:['Respiratory','Infection','Chronic pain','Headache'],p:'Red onion',h:'Central Asia, India',a:'Red onion — acrid nasal discharge with bland eye discharge, classic hay fever.',t:'herb',c:'#e08080',s:52},
+    {n:'Euphrasia',l:'Euphrasia officinalis',u:['Infection','Respiratory','Chronic pain','Headache'],p:'Whole plant',h:'Europe, N Asia',a:'Eyebright — acrid eye discharge with bland nasal discharge; opposite of Allium cepa.',t:'flower',c:'#b0d0e0',s:48},
+    {n:'Spongia',l:'Spongia tosta',u:['Respiratory','Chronic pain','Heart','Anxiety'],p:'Roasted sponge',h:'Mediterranean seas',a:'Toasted sponge — barking dry croup cough, cardiac hypertrophy, awakens with fear.',t:'herb',c:'#d0a870',s:38},
+    {n:'Podophyllum',l:'Podophyllum peltatum',u:['Digestive','Chronic pain','Fatigue','Acute fever'],p:'Roots',h:'North America',a:'May apple — profuse gushing diarrhea, liver pain, cholera-like summer diarrhea.',t:'herb',c:'#90a840',s:55},
+    {n:'Cocculus',l:'Anamirta cocculus',u:['Nerves','Anxiety','Fatigue','Headache'],p:'Seeds',h:'India, SE Asia',a:'Indian cockle — motion sickness, exhaustion from night-watching, time distortion.',t:'vine',c:'#80a060',s:52},
+    {n:'Ipecac',l:'Carapichea ipecacuanha',u:['Digestive','Respiratory','Acute fever','Chronic pain'],p:'Roots',h:'Brazil, South America',a:'Ipecacuanha — persistent nausea not relieved by vomiting, clean tongue.',t:'shrub',c:'#908050',s:68},
+    {n:'Tabacum',l:'Nicotiana tabacum',u:['Anxiety','Digestive','Nerves','Fatigue'],p:'Fresh leaves (potentized)',h:'Americas, cultivated worldwide',a:'Tobacco — seasickness, deathly nausea, cold sweats, desire for fresh air.',t:'herb',c:'#b0b840',s:55}
+  ]}
+};
+
+const POS=[];
+(function(){
+  const beds=[
+    {x1:3,y1:3,x2:47,y2:47},{x1:53,y1:3,x2:97,y2:47},
+    {x1:3,y1:53,x2:47,y2:97},{x1:53,y1:53,x2:97,y2:97}
+  ];
+  const cols=6,rows=5;
+  beds.forEach(b=>{
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const px=b.x1+2+(c/cols)*(b.x2-b.x1-4)+(Math.random()-0.5)*1.5;
+        const py=b.y1+2+(r/rows)*(b.y2-b.y1-4)+(Math.random()-0.5)*1.5;
+        POS.push({x:Math.max(b.x1+1,Math.min(b.x2-1,px)),y:Math.max(b.y1+1,Math.min(b.y2-1,py))});
+      }
+    }
+  });
+})();
+
+let cG='A',cPage=1,perP=48,cFilt=[],cQ='';
+let drag=false,dsx=0,dsy=0,px=0,py=0,zm=1;
+
+function getGardenFromURL(){const p=new URLSearchParams(window.location.search);const g=p.get('g');return(g&&DB[g])?g:'A';}
+
+function rFilters(){
+  const g=DB[cG];
+  document.getElementById('filter-bar').innerHTML=g.filters.map(f=>`<span class="ftag${cFilt.includes(f)?' on':''}" onclick="tFilt('${f}')">${f}</span>`).join('');
+  document.getElementById('garden-title').textContent=g.name;
+  document.querySelectorAll('.gtab').forEach(t=>t.classList.toggle('on',t.dataset.g===cG));
+  const ql=document.getElementById('quiz-link');
+  if(ql)ql.href=`quiz.html?g=${cG}`;
+}
+
+function tFilt(f){cFilt=cFilt.includes(f)?cFilt.filter(x=>x!==f):[...cFilt,f];cPage=1;rFilters();rPlants();}
+function doSearch(){cQ=document.getElementById('si').value.toLowerCase();cPage=1;rPlants();}
+
+function getFilt(){
+  return DB[cG].plants.filter(p=>{
+    const ms=!cQ||p.n.toLowerCase().includes(cQ)||p.l.toLowerCase().includes(cQ);
+    const mf=cFilt.length===0||cFilt.some(f=>p.u.some(u=>u.toLowerCase().includes(f.toLowerCase())));
+    return ms&&mf;
+  });
+}
+
+function mkSVG(t,c,h){
+  const w=Math.round(h*0.82);
+  function y(r){return Math.round(h*r);}
+  if(t==='tree') return `<svg width="${w}" height="${h}" viewBox="0 0 64 ${h}" fill="none"><rect x="29" y="${y(0.55)}" width="6" height="${y(0.45)}" rx="3" fill="#7a4a20"/><ellipse cx="32" cy="${y(0.38)}" rx="24" ry="26" fill="${c}" opacity="0.22"/><ellipse cx="27" cy="${y(0.3)}" rx="18" ry="20" fill="${c}" opacity="0.48"/><ellipse cx="37" cy="${y(0.28)}" rx="16" ry="18" fill="${c}" opacity="0.48"/><ellipse cx="32" cy="${y(0.2)}" rx="17" ry="20" fill="${c}" opacity="0.8"/><ellipse cx="26" cy="${y(0.12)}" rx="11" ry="13" fill="${c}"/><ellipse cx="38" cy="${y(0.13)}" rx="10" ry="12" fill="${c}"/><ellipse cx="32" cy="${y(0.06)}" rx="9" ry="11" fill="${c}"/></svg>`;
+  if(t==='shrub') return `<svg width="${w}" height="${h}" viewBox="0 0 60 ${h}" fill="none"><path d="M30 ${h} Q29 ${y(0.62)} 30 ${y(0.44)}" stroke="#6a3a14" stroke-width="2.5" stroke-linecap="round"/><path d="M30 ${y(0.72)} Q16 ${y(0.56)} 7 ${y(0.42)}" stroke="#6a3a14" stroke-width="1.8" stroke-linecap="round"/><path d="M30 ${y(0.6)} Q44 ${y(0.46)} 52 ${y(0.33)}" stroke="#6a3a14" stroke-width="1.8" stroke-linecap="round"/><path d="M7 ${y(0.42)} Q-3 ${y(0.25)} 5 ${y(0.15)} Q15 ${y(0.28)} 18 ${y(0.37)}Z" fill="${c}" opacity="0.88"/><path d="M52 ${y(0.33)} Q62 ${y(0.17)} 55 ${y(0.07)} Q43 ${y(0.19)} 39 ${y(0.28)}Z" fill="${c}" opacity="0.88"/><circle cx="30" cy="${y(0.3)}" r="${y(0.15)}" fill="${c}" opacity="0.88"/><circle cx="30" cy="${y(0.2)}" r="${y(0.12)}" fill="${c}"/><circle cx="24" cy="${y(0.15)}" r="${y(0.09)}" fill="${c}"/><circle cx="36" cy="${y(0.14)}" r="${y(0.08)}" fill="${c}"/></svg>`;
+  if(t==='flower') return `<svg width="${w}" height="${h}" viewBox="0 0 56 ${h}" fill="none"><path d="M28 ${h} Q27 ${y(0.68)} 28 ${y(0.5)} Q29 ${y(0.3)} 28 ${y(0.12)}" stroke="#4a7020" stroke-width="2.5" stroke-linecap="round"/><path d="M28 ${y(0.62)} Q14 ${y(0.52)} 8 ${y(0.42)}" stroke="#4a7020" stroke-width="1.8" stroke-linecap="round"/><path d="M8 ${y(0.42)} Q2 ${y(0.3)} 7 ${y(0.22)} Q17 ${y(0.33)} 20 ${y(0.38)}Z" fill="${c}" opacity="0.82"/><path d="M28 ${y(0.52)} Q42 ${y(0.42)} 48 ${y(0.32)}" stroke="#4a7020" stroke-width="1.8" stroke-linecap="round"/><path d="M48 ${y(0.32)} Q54 ${y(0.2)} 49 ${y(0.12)} Q37 ${y(0.22)} 34 ${y(0.3)}Z" fill="${c}" opacity="0.82"/><ellipse cx="22" cy="${y(0.07)}" rx="${y(0.07)}" ry="${y(0.045)}" fill="${c}" transform="rotate(-32,22,${y(0.07)})"/><ellipse cx="34" cy="${y(0.07)}" rx="${y(0.07)}" ry="${y(0.045)}" fill="${c}" transform="rotate(32,34,${y(0.07)})"/><circle cx="28" cy="${y(0.12)}" r="${y(0.075)}" fill="#f0c020"/><circle cx="28" cy="${y(0.12)}" r="${y(0.04)}" fill="#d89010"/></svg>`;
+  if(t==='vine'||t==='creeper') return `<svg width="${w}" height="${Math.round(h*0.85)}" viewBox="0 0 68 ${Math.round(h*0.85)}" fill="none"><path d="M34 ${Math.round(h*0.83)} Q32 ${y(0.58)} 34 ${y(0.42)}" stroke="#4a7020" stroke-width="2.5" stroke-linecap="round"/><path d="M34 ${y(0.62)} Q18 ${y(0.5)} 10 ${y(0.36)} Q22 ${y(0.42)} 30 ${y(0.54)}Z" fill="${c}" opacity="0.85"/><path d="M34 ${y(0.52)} Q50 ${y(0.4)} 58 ${y(0.26)} Q44 ${y(0.32)} 38 ${y(0.44)}Z" fill="${c}" opacity="0.85"/><path d="M34 ${y(0.42)} Q16 ${y(0.28)} 8 ${y(0.14)} Q22 ${y(0.22)} 30 ${y(0.36)}Z" fill="${c}" opacity="0.72"/></svg>`;
+  if(t==='grass') return `<svg width="${Math.round(w*0.65)}" height="${h}" viewBox="0 0 44 ${h}" fill="none"><path d="M22 ${h} Q18 ${y(0.5)} 11 ${y(0.07)}" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/><path d="M22 ${h} Q22 ${y(0.45)} 22 ${y(0.03)}" stroke="${c}" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M22 ${h} Q26 ${y(0.5)} 33 ${y(0.07)}" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/><path d="M22 ${h} Q14 ${y(0.62)} 6 ${y(0.22)}" stroke="${c}" stroke-width="2.3" stroke-linecap="round" opacity="0.68"/><path d="M22 ${h} Q30 ${y(0.62)} 38 ${y(0.22)}" stroke="${c}" stroke-width="2.3" stroke-linecap="round" opacity="0.68"/></svg>`;
+  if(t==='succulent') return `<svg width="${w}" height="${Math.round(h*0.88)}" viewBox="0 0 62 ${Math.round(h*0.88)}" fill="none"><path d="M31 ${y(0.62)} Q9 ${y(0.52)} 5 ${y(0.33)} Q16 ${y(0.36)} 24 ${y(0.54)}Z" fill="${c}" opacity="0.92"/><path d="M31 ${y(0.62)} Q53 ${y(0.52)} 57 ${y(0.33)} Q46 ${y(0.36)} 38 ${y(0.54)}Z" fill="${c}" opacity="0.92"/><path d="M31 ${y(0.56)} Q10 ${y(0.38)} 8 ${y(0.17)} Q21 ${y(0.25)} 28 ${y(0.46)}Z" fill="${c}" opacity="0.82"/><path d="M31 ${y(0.56)} Q52 ${y(0.38)} 54 ${y(0.17)} Q41 ${y(0.25)} 34 ${y(0.46)}Z" fill="${c}" opacity="0.82"/><path d="M31 ${y(0.5)} Q21 ${y(0.3)} 23 ${y(0.09)} Q29 ${y(0.22)} 30 ${y(0.42)}Z" fill="${c}"/><path d="M31 ${y(0.5)} Q41 ${y(0.3)} 39 ${y(0.09)} Q33 ${y(0.22)} 32 ${y(0.42)}Z" fill="${c}"/><circle cx="31" cy="${y(0.28)}" r="${y(0.07)}" fill="#f0a818"/></svg>`;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 58 ${h}" fill="none"><path d="M29 ${h} Q28 ${y(0.62)} 29 ${y(0.44)} Q30 ${y(0.26)} 29 ${y(0.09)}" stroke="#4a6828" stroke-width="2.5" stroke-linecap="round"/><path d="M29 ${y(0.72)} Q14 ${y(0.58)} 7 ${y(0.44)}" stroke="#4a6828" stroke-width="1.8" stroke-linecap="round"/><path d="M7 ${y(0.44)} Q-3 ${y(0.28)} 4 ${y(0.18)} Q15 ${y(0.3)} 19 ${y(0.4)}Z" fill="${c}" opacity="0.88"/><path d="M29 ${y(0.58)} Q44 ${y(0.44)} 51 ${y(0.3)}" stroke="#4a6828" stroke-width="1.8" stroke-linecap="round"/><path d="M51 ${y(0.3)} Q61 ${y(0.14)} 55 ${y(0.06)} Q43 ${y(0.16)} 39 ${y(0.26)}Z" fill="${c}" opacity="0.88"/><path d="M29 ${y(0.44)} Q14 ${y(0.3)} 12 ${y(0.15)} Q24 ${y(0.24)} 26 ${y(0.37)}Z" fill="${c}" opacity="0.78"/><path d="M29 ${y(0.36)} Q44 ${y(0.22)} 42 ${y(0.09)} Q30 ${y(0.18)} 28 ${y(0.3)}Z" fill="${c}" opacity="0.78"/><circle cx="29" cy="${y(0.07)}" r="${y(0.058)}" fill="${c}"/></svg>`;
+}
+
+function rPlants(){
+  const plc=document.getElementById('plc');plc.innerHTML='';
+  const fp=getFilt();
+  const tp=Math.max(1,Math.ceil(fp.length/perP));
+  if(cPage>tp)cPage=1;
+  const show=fp.slice((cPage-1)*perP,(cPage-1)*perP+perP);
+  document.getElementById('bcnt').textContent=`${fp.length} plant${fp.length!==1?'s':''}`;
+  document.getElementById('bpg').textContent=`${cPage}/${tp}`;
+  show.forEach((p,i)=>{
+    const pos=POS[i%POS.length];
+    const sw=Math.round(p.s*0.82);
+    const dm=document.createElement('div');
+    dm.className='dmound';
+    dm.style.cssText=`left:${pos.x}%;top:calc(${pos.y}% + ${Math.round(p.s*0.85)}px);transform:translate(-50%,-50%);width:${Math.round(sw*0.88)}px;height:${Math.round(p.s*0.18)}px;`;
+    plc.appendChild(dm);
+    const div=document.createElement('div');
+    div.className='plant';
+    div.style.cssText=`left:${pos.x}%;top:${pos.y}%;`;
+    div.innerHTML=`<div class="ptag">${p.n}</div><div class="pb" style="position:relative;">${mkSVG(p.t,p.c,p.s)}<div class="pshadow" style="width:${Math.round(sw*0.75)}px;height:${Math.round(p.s*0.11)}px;"></div></div>`;
+    div.addEventListener('click',()=>openP(p));
+    plc.appendChild(div);
+  });
+}
+
+function openP(p){
+  const g=DB[cG];
+  const bs=document.getElementById('psys');
+  bs.textContent=g.name.replace(' Garden','');
+  bs.style.background=g.bc;bs.style.color=g.tc;
+  document.getElementById('pname').textContent=p.n;
+  document.getElementById('platin').textContent=p.l;
+  document.getElementById('pabt').textContent=p.a;
+  document.getElementById('puse').innerHTML=p.u.map(u=>`<span class="utag">${u}</span>`).join('');
+  document.getElementById('pprt').textContent=p.p;
+  document.getElementById('phab').textContent=p.h;
+  document.getElementById('pbg').innerHTML=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:0.35;">${mkSVG(p.t,p.c,160)}</div><div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,${p.c}25 0%,transparent 65%);"></div>`;
+  document.getElementById('panel').classList.add('open');
+}
+function closeP(){document.getElementById('panel').classList.remove('open');}
+
+function swG(g){
+  cG=g;cPage=1;cFilt=[];
+  history.replaceState(null,'',`?g=${g}`);
+  document.getElementById('si').value='';cQ='';
+  rFilters();rPlants();closeP();
+}
+function goPg(d){
+  const fp=getFilt();
+  const tp=Math.max(1,Math.ceil(fp.length/perP));
+  cPage=Math.max(1,Math.min(tp,cPage+d));
+  rPlants();
+}
+
+const scene=document.getElementById('scene'),world=document.getElementById('world');
+function applyT(){world.style.transform=`translate(calc(-50% + ${px}px),calc(-50% + ${py}px)) rotateX(52deg) rotateZ(-45deg) scale(${zm})`;}
+scene.addEventListener('mousedown',e=>{if(e.target.closest('.plant'))return;drag=true;scene.classList.add('drag');dsx=e.clientX-px;dsy=e.clientY-py;});
+window.addEventListener('mousemove',e=>{if(!drag)return;px=e.clientX-dsx;py=e.clientY-dsy;applyT();});
+window.addEventListener('mouseup',()=>{drag=false;scene.classList.remove('drag');});
+scene.addEventListener('wheel',e=>{e.preventDefault();zm=Math.min(2.5,Math.max(0.25,zm-e.deltaY*0.001));applyT();},{passive:false});
+scene.addEventListener('touchstart',e=>{if(e.touches.length===1&&!e.target.closest('.plant')){drag=true;dsx=e.touches[0].clientX-px;dsy=e.touches[0].clientY-py;}});
+scene.addEventListener('touchmove',e=>{if(!drag||e.touches.length!==1)return;px=e.touches[0].clientX-dsx;py=e.touches[0].clientY-dsy;applyT();},{passive:false});
+scene.addEventListener('touchend',()=>{drag=false;});
+
+window.addEventListener('load',()=>{
+  const u=localStorage.getItem('ayush_user');
+  if(!u){window.location.href='login.html';return;}
+  cG=getGardenFromURL();
+  const lf=document.getElementById('lf');
+  document.getElementById('lsub').textContent='Loading '+DB[cG].name+'...';
+  let lp=0;
+  const lt=setInterval(()=>{lp+=Math.random()*14+6;lf.style.width=Math.min(lp,100)+'%';
+    if(lp>=100){clearInterval(lt);setTimeout(()=>{const l=document.getElementById('loader');l.style.opacity='0';setTimeout(()=>l.style.display='none',500);},200);}
+  },50);
+  rFilters();rPlants();
+});
+</script>
+</body>
+</html>

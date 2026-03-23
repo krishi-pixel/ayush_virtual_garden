@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AYUSH Herbal Garden — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --g1:#0a1a0a;
+  --g2:#0d2410;
+  --g3:#112d14;
+  --accent:#3ddc84;
+  --accent2:#56f09a;
+  --leaf1:#2d6a35;
+  --leaf2:#4a9955;
+  --leaf3:#6abf72;
+  --gold:#c8d84a;
+  --text:#d4f0d8;
+  --muted:#6a9a70;
+  --border:rgba(61,220,132,0.18);
+  --cardbg:rgba(8,22,10,0.75);
+}
+
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Raleway',sans-serif;}
+
+/* ── SCENE ── */
+#scene{
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse 120% 100% at 50% 110%, #0d3318 0%, #071408 50%, #030a04 100%);
+  overflow:hidden;
+}
+
+/* ── AURORA LAYERS ── */
+.aurora{
+  position:absolute;border-radius:50%;
+  filter:blur(80px);
+  animation:auroraMove var(--dur) ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes auroraMove{
+  0%{transform:translate(0,0) scale(1);}
+  100%{transform:translate(var(--tx),var(--ty)) scale(var(--sc));}
+}
+
+/* ── GRID ── */
+.grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(61,220,132,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61,220,132,0.04) 1px, transparent 1px);
+  background-size:60px 60px;
+  animation:gridPulse 8s ease-in-out infinite;
+}
+@keyframes gridPulse{
+  0%,100%{opacity:0.5;}50%{opacity:1;}
+}
+
+/* ── FLOATING PARTICLES (canvas) ── */
+#canvas{position:absolute;inset:0;pointer-events:none;}
+
+/* ── FIREFLIES ── */
+.firefly{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 6px 2px rgba(61,220,132,0.8);
+  animation:ff var(--d) ease-in-out infinite var(--dl);
+  pointer-events:none;
+}
+@keyframes ff{
+  0%{transform:translate(0,0);opacity:0;}
+  20%{opacity:1;}
+  50%{transform:translate(var(--x),var(--y));opacity:0.8;}
+  80%{opacity:0.6;}
+  100%{transform:translate(calc(var(--x)*0.5),calc(var(--y)*1.5));opacity:0;}
+}
+
+/* ── FLOATING LEAVES ── */
+.leaf{
+  position:absolute;
+  pointer-events:none;
+  animation:leafFall var(--ld) linear infinite var(--ldl);
+  opacity:0;
+}
+@keyframes leafFall{
+  0%{transform:translateY(-60px) rotate(0deg) translateX(0);opacity:0;}
+  10%{opacity:0.7;}
+  90%{opacity:0.4;}
+  100%{transform:translateY(110vh) rotate(720deg) translateX(var(--lx));opacity:0;}
+}
+
+/* ── SCAN LINE ── */
+.scanline{
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(61,220,132,0.15),transparent);
+  animation:scan 6s linear infinite;
+  pointer-events:none;
+}
+@keyframes scan{from{top:-2px;}to{top:100vh;}}
+
+/* ── VIGNETTE ── */
+.vignette{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0,0,0,0.7) 100%);
+  pointer-events:none;
+}
+
+/* ── WRAP ── */
+.wrap{
+  position:relative;z-index:10;
+  width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;
+}
+
+/* ── HEADER ── */
+.header{text-align:center;margin-bottom:28px;animation:riseIn 1s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes riseIn{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+
+.logo-ring{
+  width:76px;height:76px;margin:0 auto 14px;
+  position:relative;
+}
+.logo-ring svg{width:100%;height:100%;}
+
+.brand{
+  font-family:'Cinzel',serif;
+  font-size:2rem;font-weight:600;
+  color:var(--text);
+  letter-spacing:0.06em;
+  line-height:1.1;
+  text-shadow:0 0 40px rgba(61,220,132,0.3);
+}
+.brand span{
+  color:var(--accent);
+  text-shadow:0 0 20px rgba(61,220,132,0.6);
+}
+.sub{
+  font-family:'DM Mono',monospace;
+  font-size:0.6rem;letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+/* ── CARD ── */
+.card{
+  width:100%;max-width:420px;
+  background:var(--cardbg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:32px 36px 28px;
+  backdrop-filter:blur(20px);
+  position:relative;
+  animation:riseIn 1s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+  box-shadow:
+    0 0 0 1px rgba(61,220,132,0.05),
+    0 20px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(61,220,132,0.1);
+}
+
+/* glow top edge */
+.card::before{
+  content:'';position:absolute;top:-1px;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(61,220,132,0.6),transparent);
+}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;margin-bottom:26px;background:rgba(0,0,0,0.3);border-radius:8px;padding:4px;}
+.tab{
+  flex:1;padding:8px;border-radius:6px;border:none;background:transparent;
+  font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all 0.25s;
+}
+.tab.on{background:rgba(61,220,132,0.15);color:var(--accent);box-shadow:inset 0 0 0 1px rgba(61,220,132,0.25);}
+.tab:hover:not(.on){color:var(--text);}
+
+/* ── FORM ── */
+.form{display:none;}
+.form.active{display:block;}
+
+.field{margin-bottom:16px;}
+.field label{
+  display:block;font-family:'DM Mono',monospace;
+  font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:7px;
+}
+.field input{
+  width:100%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(61,220,132,0.15);
+  border-radius:7px;color:var(--text);
+  font-family:'Raleway',sans-serif;font-size:0.92rem;
+  padding:10px 14px;outline:none;transition:all 0.25s;
+}
+.field input::placeholder{color:rgba(100,160,110,0.35);}
+.field input:focus{
+  border-color:rgba(61,220,132,0.5);
+  background:rgba(61,220,132,0.05);
+  box-shadow:0 0 0 3px rgba(61,220,132,0.08);
+}
+
+/* ── BUTTON ── */
+.btn{
+  width:100%;margin-top:6px;
+  background:linear-gradient(135deg,#1a6b35,#2d9a4e);
+  border:1px solid rgba(61,220,132,0.4);
+  border-radius:8px;color:#fff;
+  font-family:'DM Mono',monospace;font-size:0.7rem;
+  letter-spacing:0.16em;text-transform:uppercase;
+  padding:13px;cursor:pointer;
+  transition:all 0.3s;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(29,107,53,0.4);
+}
+.btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent,rgba(255,255,255,0.1));
+  opacity:0;transition:opacity 0.3s;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(29,107,53,0.55);}
+.btn:hover::after{opacity:1;}
+.btn:active{transform:translateY(0);}
+
+/* ── MESSAGE ── */
+.msg{font-size:0.78rem;text-align:center;padding:9px;border-radius:7px;margin-top:12px;display:none;}
+.msg.err{background:rgba(220,60,60,0.12);color:#f0a0a0;border:1px solid rgba(220,60,60,0.25);}
+.msg.ok{background:rgba(61,220,132,0.1);color:#7fe8a8;border:1px solid rgba(61,220,132,0.25);}
+
+/* ── DIVIDER ── */
+.div{display:flex;align-items:center;gap:10px;margin:18px 0 14px;}
+.div::before,.div::after{content:'';flex:1;height:1px;background:rgba(61,220,132,0.12);}
+.div span{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(100,160,110,0.4);}
+
+/* ── GUEST ── */
+.guest{
+  font-size:0.8rem;color:var(--muted);text-align:center;
+  font-style:italic;
+}
+.guest a{color:var(--accent);cursor:pointer;text-decoration:none;border-bottom:1px solid rgba(61,220,132,0.3);transition:color 0.2s;}
+.guest a:hover{color:var(--accent2);}
+
+/* ── FOOTER ── */
+.foot{
+  margin-top:18px;text-align:center;
+  font-family:'DM Mono',monospace;font-size:0.55rem;
+  letter-spacing:0.12em;color:rgba(100,160,110,0.3);
+  animation:riseIn 1s ease 0.4s both;
+}
+
+@media(max-width:460px){
+  .card{padding:24px 20px 22px;}
+  .brand{font-size:1.6rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- SCENE -->
+<div id="scene">
+  <!-- Aurora blobs -->
+  <div class="aurora" style="width:600px;height:500px;top:-100px;left:-150px;background:radial-gradient(circle,rgba(20,90,35,0.45),transparent 70%);--dur:12s;--tx:80px;--ty:60px;--sc:1.15;"></div>
+  <div class="aurora" style="width:500px;height:600px;bottom:-150px;right:-100px;background:radial-gradient(circle,rgba(15,70,30,0.4),transparent 70%);--dur:15s;--tx:-60px;--ty:-80px;--sc:1.2;"></div>
+  <div class="aurora" style="width:400px;height:400px;top:30%;left:30%;background:radial-gradient(circle,rgba(40,110,55,0.2),transparent 70%);--dur:18s;--tx:100px;--ty:-50px;--sc:0.85;"></div>
+  <div class="aurora" style="width:350px;height:350px;top:10%;right:15%;background:radial-gradient(circle,rgba(90,180,80,0.12),transparent 70%);--dur:10s;--tx:-40px;--ty:90px;--sc:1.3;"></div>
+
+  <!-- Grid -->
+  <div class="grid"></div>
+
+  <!-- Canvas for particles -->
+  <canvas id="canvas"></canvas>
+
+  <!-- Scan line -->
+  <div class="scanline"></div>
+
+  <!-- Vignette -->
+  <div class="vignette"></div>
+
+  <!-- Fireflies (JS generated) -->
+  <div id="flies"></div>
+
+  <!-- Floating leaves (JS generated) -->
+  <div id="leaves"></div>
+</div>
+
+<!-- MAIN -->
+<div class="wrap">
+  <div class="header">
+    <!-- Logo ring with leaf -->
+    <div class="logo-ring">
+      <svg viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Outer ring spinning dashes -->
+        <circle cx="38" cy="38" r="35" stroke="rgba(61,220,132,0.25)" stroke-width="1" stroke-dasharray="4 3"/>
+        <circle cx="38" cy="38" r="30" stroke="rgba(61,220,132,0.15)" stroke-width="0.6"/>
+        <!-- Leaf in center -->
+        <path d="M38 58 Q20 46 22 28 Q30 12 38 18 Q46 12 54 28 Q56 46 38 58Z" fill="rgba(45,106,53,0.8)" stroke="rgba(61,220,132,0.5)" stroke-width="0.8"/>
+        <path d="M38 58 Q38 38 38 18" stroke="rgba(61,220,132,0.6)" stroke-width="1" stroke-linecap="round"/>
+        <path d="M38 46 Q30 40 22 34" stroke="rgba(61,220,132,0.35)" stroke-width="0.7" stroke-linecap="round"/>
+        <path d="M38 38 Q46 32 54 28" stroke="rgba(61,220,132,0.35)" stroke-width="0.7" stroke-linecap="round"/>
+        <path d="M38 52 Q32 47 26 42" stroke="rgba(61,220,132,0.25)" stroke-width="0.6" stroke-linecap="round"/>
+        <!-- Glow dot -->
+        <circle cx="38" cy="38" r="3" fill="rgba(61,220,132,0.9)"/>
+        <circle cx="38" cy="38" r="5" fill="none" stroke="rgba(61,220,132,0.4)" stroke-width="1"/>
+        <!-- 8 small marks -->
+        <circle cx="38" cy="4" r="1.2" fill="rgba(61,220,132,0.4)"/>
+        <circle cx="38" cy="72" r="1.2" fill="rgba(61,220,132,0.4)"/>
+        <circle cx="4" cy="38" r="1.2" fill="rgba(61,220,132,0.4)"/>
+        <circle cx="72" cy="38" r="1.2" fill="rgba(61,220,132,0.4)"/>
+        <circle cx="12" cy="12" r="1" fill="rgba(61,220,132,0.3)"/>
+        <circle cx="64" cy="64" r="1" fill="rgba(61,220,132,0.3)"/>
+        <circle cx="64" cy="12" r="1" fill="rgba(61,220,132,0.3)"/>
+        <circle cx="12" cy="64" r="1" fill="rgba(61,220,132,0.3)"/>
+      </svg>
+    </div>
+    <div class="brand">AYUSH <span>Herbal</span> Garden</div>
+    <div class="sub">Ministry of AYUSH · SIH 2024</div>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+    <div class="tabs">
+      <button class="tab on" id="tl" onclick="swTab('login')">Login</button>
+      <button class="tab" id="tr" onclick="swTab('reg')">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <form class="form active" id="fl" onsubmit="doLogin(event)">
+      <div class="field"><label>Name</label><input type="text" id="ln" placeholder="Your name" autocomplete="name"/></div>
+      <div class="field"><label>Email</label><input type="email" id="le" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="field"><label>Password</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="btn" type="submit">Enter the Garden &rarr;</button>
+      <div class="msg" id="ml"></div>
+    </form>
+
+    <!-- REGISTER -->
+    <form class="form" id="fr" onsubmit="doReg(event)">
+      <div class="field"><label>Full Name</label><input type="text" id="rn" placeholder="Your full name" autocomplete="name"/></div>
+      <div class="field"><label>Email</label><input type="email" id="re" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="field"><label>Password</label><input type="password" id="rp" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
+      <div class="field"><label>Confirm Password</label><input type="password" id="rp2" placeholder="Repeat password" autocomplete="new-password"/></div>
+      <button class="btn" type="submit">Create Account &rarr;</button>
+      <div class="msg" id="mr"></div>
+    </form>
+
+    <div class="div"><span>or</span></div>
+    <p class="guest">Exploring? <a onclick="guestIn()">Continue as Guest</a></p>
+  </div>
+
+  <div class="foot">Smart India Hackathon 2024 &nbsp;·&nbsp; All India Institute of Ayurveda</div>
+</div>
+
+<script>
+/* ── FIREFLIES ── */
+const fc = document.getElementById('flies');
+for(let i=0;i<28;i++){
+  const f=document.createElement('div');
+  f.className='firefly';
+  const size = Math.random()*2+1.5;
+  f.style.cssText=`
+    left:${Math.random()*100}%;
+    top:${Math.random()*100}%;
+    width:${size}px;height:${size}px;
+    --x:${(Math.random()-0.5)*200}px;
+    --y:${(Math.random()-0.5)*200}px;
+    --d:${Math.random()*6+5}s;
+    --dl:-${Math.random()*8}s;
+    opacity:${Math.random()*0.6+0.2};
+  `;
+  fc.appendChild(f);
+}
+
+/* ── FLOATING LEAVES ── */
+const lc = document.getElementById('leaves');
+const leafSVGs = [
+  `<svg width="18" height="24" viewBox="0 0 18 24" fill="none"><path d="M9 23 Q0 16 2 8 Q6 0 9 4 Q12 0 16 8 Q18 16 9 23Z" fill="rgba(45,106,53,0.6)" stroke="rgba(61,220,132,0.4)" stroke-width="0.5"/><path d="M9 23 Q9 13 9 4" stroke="rgba(61,220,132,0.3)" stroke-width="0.5"/></svg>`,
+  `<svg width="22" height="14" viewBox="0 0 22 14" fill="none"><path d="M1 7 Q6 0 11 2 Q16 0 21 7 Q16 14 11 12 Q6 14 1 7Z" fill="rgba(74,153,85,0.55)" stroke="rgba(106,191,114,0.4)" stroke-width="0.5"/><path d="M1 7 Q11 9 21 7" stroke="rgba(61,220,132,0.25)" stroke-width="0.4"/></svg>`,
+  `<svg width="14" height="20" viewBox="0 0 14 20" fill="none"><path d="M7 19 Q0 12 2 5 Q5 0 7 3 Q9 0 12 5 Q14 12 7 19Z" fill="rgba(106,191,114,0.5)" stroke="rgba(61,220,132,0.35)" stroke-width="0.5"/></svg>`,
+];
+for(let i=0;i<18;i++){
+  const l=document.createElement('div');
+  l.className='leaf';
+  l.innerHTML=leafSVGs[i%leafSVGs.length];
+  l.style.cssText=`
+    left:${Math.random()*100}%;
+    top:${Math.random()*-20}%;
+    --ld:${Math.random()*12+10}s;
+    --ldl:-${Math.random()*15}s;
+    --lx:${(Math.random()-0.5)*200}px;
+    transform:rotate(${Math.random()*360}deg);
+  `;
+  lc.appendChild(l);
+}
+
+/* ── CANVAS PARTICLES ── */
+const cv=document.getElementById('canvas');
+const ctx=cv.getContext('2d');
+let W,H,pts=[];
+function resize(){
+  W=cv.width=window.innerWidth;
+  H=cv.height=window.innerHeight;
+}
+resize();
+window.addEventListener('resize',()=>{resize();initPts();});
+
+function initPts(){
+  pts=[];
+  const N=Math.floor((W*H)/18000);
+  for(let i=0;i<N;i++){
+    pts.push({
+      x:Math.random()*W, y:Math.random()*H,
+      vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4,
+      r:Math.random()*2+0.5,
+      a:Math.random()*0.5+0.1,
+      hue:Math.random()*40+100 // green range
+    });
+  }
+}
+initPts();
+
+function drawPts(){
+  ctx.clearRect(0,0,W,H);
+  // draw connections
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<130){
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(61,220,132,${0.06*(1-dist/130)})`;
+        ctx.lineWidth=0.5;
+        ctx.moveTo(pts[i].x,pts[i].y);
+        ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  // draw dots
+  for(const p of pts){
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${p.hue},60%,65%,${p.a})`;
+    ctx.fill();
+    // update
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0||p.x>W) p.vx*=-1;
+    if(p.y<0||p.y>H) p.vy*=-1;
+  }
+  requestAnimationFrame(drawPts);
+}
+drawPts();
+
+/* ── TABS ── */
+function swTab(t){
+  const isLogin=t==='login';
+  document.getElementById('tl').classList.toggle('on',isLogin);
+  document.getElementById('tr').classList.toggle('on',!isLogin);
+  document.getElementById('fl').classList.toggle('active',isLogin);
+  document.getElementById('fr').classList.toggle('active',!isLogin);
+}
+
+/* ── MESSAGES ── */
+function msg(id,type,text){
+  const el=document.getElementById(id);
+  el.className='msg '+(type==='ok'?'ok':'err');
+  el.textContent=text;el.style.display='block';
+}
+
+/* ── AUTH ── */
+function saveUser(name,email){
+  localStorage.setItem('ayush_user',JSON.stringify({name,email,loginTime:Date.now()}));
+}
+
+function doLogin(e){
+  e.preventDefault();
+  const name=document.getElementById('ln').value.trim();
+  const email=document.getElementById('le').value.trim();
+  const pass=document.getElementById('lp').value;
+  if(!name){msg('ml','err','Please enter your name.');return;}
+  if(!email){msg('ml','err','Please enter your email.');return;}
+  if(!pass){msg('ml','err','Please enter your password.');return;}
+  const stored=localStorage.getItem('ayush_reg_'+email);
+  if(stored){
+    const u=JSON.parse(stored);
+    if(u.pass!==pass){msg('ml','err','Incorrect password.');return;}
+    saveUser(u.name,email);
+  } else {
+    saveUser(name,email);
+  }
+  msg('ml','ok','Welcome, '+name+'! Loading garden…');
+  setTimeout(()=>location.href='intro.html',1100);
+}
+
+function doReg(e){
+  e.preventDefault();
+  const name=document.getElementById('rn').value.trim();
+  const email=document.getElementById('re').value.trim();
+  const pass=document.getElementById('rp').value;
+  const pass2=document.getElementById('rp2').value;
+  if(!name){msg('mr','err','Enter your full name.');return;}
+  if(!email||!email.includes('@')){msg('mr','err','Enter a valid email.');return;}
+  if(pass.length<6){msg('mr','err','Password must be at least 6 characters.');return;}
+  if(pass!==pass2){msg('mr','err','Passwords do not match.');return;}
+  localStorage.setItem('ayush_reg_'+email,JSON.stringify({name,email,pass}));
+  saveUser(name,email);
+  msg('mr','ok','Account created! Welcome, '+name+'!');
+  setTimeout(()=>location.href='intro.html',1100);
+}
+
+function guestIn(){
+  saveUser('Guest','guest@ayush.in');
+  location.href='intro.html';
+}
+
+/* ── AUTO REDIRECT ── */
+(function(){
+  const u=localStorage.getItem('ayush_user');
+  if(u){
+    const p=JSON.parse(u);
+    if(p.loginTime&&(Date.now()-p.loginTime)<86400000) location.href='intro.html';
+  }
+})();
+</script>
+</body>
+</html>

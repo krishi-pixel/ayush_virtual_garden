@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AYUSH Herbal Garden — Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --g1:#030a04;--accent:#3ddc84;--accent2:#56f09a;
+  --text:#d4f0d8;--muted:#6a9a70;--border:rgba(61,220,132,0.18);
+  --cardbg:rgba(8,22,10,0.82);
+}
+html,body{width:100%;min-height:100%;font-family:'Raleway',sans-serif;background:var(--g1);color:var(--text);overflow-x:hidden;}
+
+/* BG */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:radial-gradient(ellipse 120% 100% at 50% 110%,#0d3318 0%,#071408 50%,#030a04 100%);}
+.aurora{position:absolute;border-radius:50%;filter:blur(90px);animation:am var(--dur) ease-in-out infinite alternate;}
+@keyframes am{0%{transform:translate(0,0) scale(1);}100%{transform:translate(var(--tx),var(--ty)) scale(var(--sc));}}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(61,220,132,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(61,220,132,0.03) 1px,transparent 1px);background-size:60px 60px;animation:gp 10s ease-in-out infinite;}
+@keyframes gp{0%,100%{opacity:0.4;}50%{opacity:0.85;}}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse 85% 85% at 50% 50%,transparent 40%,rgba(0,0,0,0.65) 100%);}
+#cvs{position:absolute;inset:0;pointer-events:none;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,10,4,0.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(61,220,132,0.1);}
+.nav-logo{font-family:'Cinzel',serif;font-size:1rem;font-weight:600;color:var(--text);text-decoration:none;}
+.nav-logo span{color:var(--accent);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-badge{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;color:var(--muted);}
+.nav-badge span{color:var(--accent);}
+.btn-back{background:transparent;border:1px solid rgba(61,220,132,0.22);border-radius:7px;color:var(--muted);font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:6px 13px;cursor:pointer;transition:all 0.22s;text-decoration:none;display:inline-block;}
+.btn-back:hover{border-color:var(--accent);color:var(--accent);}
+
+/* PAGE */
+.page{position:relative;z-index:10;padding:84px 20px 60px;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+
+/* SCREENS */
+.screen{width:100%;max-width:720px;display:none;}
+.screen.active{display:block;}
+
+/* ── INTRO SCREEN ── */
+.intro-wrap{text-align:center;padding:20px 0;}
+.intro-icon{width:80px;height:80px;margin:0 auto 20px;animation:spin 20s linear infinite;}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.intro-title{font-family:'Cinzel',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:600;color:var(--text);margin-bottom:8px;}
+.intro-title span{color:var(--accent);}
+.intro-sub{font-size:0.92rem;color:var(--muted);margin-bottom:32px;line-height:1.8;max-width:480px;margin-left:auto;margin-right:auto;}
+.intro-stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-bottom:36px;}
+.istat{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.istat-num{font-family:'Cinzel',serif;font-size:2rem;font-weight:600;color:var(--accent);line-height:1;}
+.istat-lbl{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+.difficulty-row{display:flex;justify-content:center;gap:10px;margin-bottom:32px;flex-wrap:wrap;}
+.diff-btn{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:8px 20px;border-radius:8px;border:1px solid rgba(61,220,132,0.22);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.22s;}
+.diff-btn.selected,.diff-btn:hover{background:rgba(61,220,132,0.12);border-color:var(--accent);color:var(--accent);}
+.diff-btn[data-d="easy"].selected{background:rgba(39,174,96,0.15);border-color:#27ae60;color:#5adb88;}
+.diff-btn[data-d="medium"].selected{background:rgba(200,160,40,0.15);border-color:#c8a828;color:#e8c848;}
+.diff-btn[data-d="hard"].selected{background:rgba(200,60,60,0.15);border-color:#c83c3c;color:#e86060;}
+.btn-start{display:inline-block;background:linear-gradient(135deg,#1a6b35,#2d9a4e);border:1px solid rgba(61,220,132,0.4);border-radius:10px;color:#fff;font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;padding:14px 40px;cursor:pointer;transition:all 0.3s;box-shadow:0 6px 24px rgba(29,107,53,0.4);}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(29,107,53,0.55);}
+
+/* ── QUIZ SCREEN ── */
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.q-info{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;color:var(--muted);}
+.q-info span{color:var(--accent);}
+
+/* Timer */
+.timer-wrap{display:flex;align-items:center;gap:8px;}
+.timer-ring{width:44px;height:44px;flex-shrink:0;}
+.timer-num{font-family:'Cinzel',serif;font-size:1rem;font-weight:600;}
+.timer-num.warn{color:#e8c848;animation:pulse 0.5s ease-in-out infinite alternate;}
+.timer-num.danger{color:#e86060;animation:pulse 0.3s ease-in-out infinite alternate;}
+@keyframes pulse{from{opacity:1;}to{opacity:0.5;}}
+
+/* Progress bar */
+.progress-bar{width:100%;height:5px;background:rgba(61,220,132,0.1);border-radius:3px;margin-bottom:24px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#1D9E75,#3ddc84);border-radius:3px;transition:width 0.4s ease;}
+
+/* Question card */
+.q-card{background:var(--cardbg);border:1px solid var(--border);border-radius:14px;padding:28px 28px 24px;margin-bottom:20px;position:relative;overflow:hidden;}
+.q-card::before{content:'';position:absolute;top:-1px;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(61,220,132,0.5),transparent);}
+.q-num{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.q-cat{display:inline-block;font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 9px;border-radius:20px;background:rgba(61,220,132,0.08);border:1px solid rgba(61,220,132,0.2);color:var(--muted);margin-bottom:14px;}
+.q-text{font-family:'Cinzel',serif;font-size:1.15rem;font-weight:400;color:var(--text);line-height:1.55;}
+
+/* Options */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.opt{background:rgba(8,22,10,0.6);border:1px solid rgba(61,220,132,0.14);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all 0.22s;display:flex;align-items:flex-start;gap:10px;text-align:left;}
+.opt:hover:not(.locked){background:rgba(61,220,132,0.07);border-color:rgba(61,220,132,0.35);}
+.opt-letter{font-family:'DM Mono',monospace;font-size:0.65rem;font-weight:400;letter-spacing:0.06em;width:22px;height:22px;border-radius:50%;border:1px solid rgba(61,220,132,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);transition:all 0.22s;}
+.opt-text{font-size:0.85rem;color:var(--text);line-height:1.45;}
+.opt.correct{background:rgba(39,174,96,0.15);border-color:#27ae60;}
+.opt.correct .opt-letter{background:#27ae60;border-color:#27ae60;color:#fff;}
+.opt.wrong{background:rgba(200,60,60,0.12);border-color:#c83c3c;}
+.opt.wrong .opt-letter{background:#c83c3c;border-color:#c83c3c;color:#fff;}
+.opt.locked{cursor:default;}
+
+/* Explanation */
+.explanation{background:rgba(61,220,132,0.06);border:1px solid rgba(61,220,132,0.2);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:none;}
+.explanation.show{display:block;}
+.expl-title{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+.expl-text{font-size:0.82rem;color:var(--muted);line-height:1.65;}
+
+/* Next button */
+.btn-next{width:100%;background:linear-gradient(135deg,#1a6b35,#2d9a4e);border:1px solid rgba(61,220,132,0.4);border-radius:10px;color:#fff;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;padding:13px;cursor:pointer;transition:all 0.25s;display:none;}
+.btn-next.show{display:block;}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(29,107,53,0.45);}
+
+/* Score strip */
+.score-strip{display:flex;align-items:center;gap:16px;padding:10px 16px;background:rgba(8,22,10,0.6);border:1px solid rgba(61,220,132,0.12);border-radius:10px;margin-bottom:20px;}
+.score-strip-item{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.ss-num{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:600;color:var(--accent);}
+.ss-lbl{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.ss-div{width:1px;height:32px;background:rgba(61,220,132,0.12);}
+
+/* ── RESULT SCREEN ── */
+.result-wrap{text-align:center;padding:20px 0;}
+.result-circle{width:140px;height:140px;margin:0 auto 24px;position:relative;}
+.result-circle svg{width:100%;height:100%;}
+.result-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:2rem;font-weight:600;color:var(--text);}
+.result-grade{font-family:'Cinzel',serif;font-size:2.5rem;font-weight:600;margin-bottom:6px;}
+.result-msg{font-size:0.9rem;color:var(--muted);margin-bottom:28px;line-height:1.7;max-width:420px;margin-left:auto;margin-right:auto;}
+.result-breakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+.rb-card{background:var(--cardbg);border:1px solid var(--border);border-radius:10px;padding:16px 12px;text-align:center;}
+.rb-num{font-family:'Cinzel',serif;font-size:1.6rem;font-weight:600;line-height:1;}
+.rb-lbl{font-family:'DM Mono',monospace;font-size:0.56rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.result-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+.btn-action{font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;padding:12px 24px;border-radius:9px;cursor:pointer;transition:all 0.25s;text-decoration:none;display:inline-block;}
+.btn-action.primary{background:linear-gradient(135deg,#1a6b35,#2d9a4e);border:1px solid rgba(61,220,132,0.4);color:#fff;box-shadow:0 4px 18px rgba(29,107,53,0.4);}
+.btn-action.primary:hover{transform:translateY(-2px);}
+.btn-action.ghost{background:transparent;border:1px solid rgba(61,220,132,0.25);color:var(--accent);}
+.btn-action.ghost:hover{background:rgba(61,220,132,0.07);}
+
+/* Review list */
+.review-list{margin-top:28px;text-align:left;}
+.review-title{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--text);margin-bottom:14px;text-align:center;}
+.review-item{background:var(--cardbg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;}
+.ri-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.7rem;font-weight:600;}
+.ri-icon.ok{background:rgba(39,174,96,0.2);color:#5adb88;border:1px solid rgba(39,174,96,0.3);}
+.ri-icon.bad{background:rgba(200,60,60,0.2);color:#e86060;border:1px solid rgba(200,60,60,0.3);}
+.ri-icon.skip{background:rgba(200,200,60,0.2);color:#e8e860;border:1px solid rgba(200,200,60,0.3);}
+.ri-content{display:block;}
+.ri-q{font-size:0.8rem;color:var(--text);margin-bottom:4px;}
+.ri-a{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);}
+.ri-a span{color:var(--accent);}
+
+/* Loader */
+#loader{position:fixed;inset:0;background:#040a04;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.5s;}
+.lt{font-family:'Cinzel',serif;font-size:2.2rem;color:#fff;margin-bottom:4px;text-align:center;}
+.lt span{color:#27ae60;}
+.ls{font-family:'DM Mono',monospace;font-size:0.65rem;color:#1e3a1e;margin-bottom:26px;letter-spacing:0.12em;}
+.lb{width:200px;height:2px;background:rgba(255,255,255,0.07);border-radius:2px;}
+.lf{height:100%;background:#27ae60;border-radius:2px;width:0;transition:width 0.04s;}
+
+@keyframes fu{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fu 0.5s ease both;}
+
+@media(max-width:560px){
+  .options{grid-template-columns:1fr;}
+  .result-breakdown{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div id="loader"><div class="lt">AYUSH <span>Quiz</span></div><div class="ls" id="lsub">Preparing questions...</div><div class="lb"><div class="lf" id="lf"></div></div></div>
+
+<div id="bg">
+  <div class="aurora" style="width:600px;height:500px;top:-150px;left:-150px;background:radial-gradient(circle,rgba(20,90,35,0.4),transparent 70%);--dur:14s;--tx:80px;--ty:60px;--sc:1.2;"></div>
+  <div class="aurora" style="width:550px;height:650px;bottom:-180px;right:-120px;background:radial-gradient(circle,rgba(15,70,30,0.35),transparent 70%);--dur:18s;--tx:-70px;--ty:-80px;--sc:1.15;"></div>
+  <div class="aurora" style="width:400px;height:400px;top:35%;left:35%;background:radial-gradient(circle,rgba(40,110,55,0.18),transparent 70%);--dur:22s;--tx:90px;--ty:-80px;--sc:0.8;"></div>
+  <div class="grid"></div>
+  <canvas id="cvs"></canvas>
+  <div class="vignette"></div>
+</div>
+
+<nav>
+  <a class="nav-logo" href="select.html">AYUSH <span>Herbal</span> Garden</a>
+  <div class="nav-right">
+    <div class="nav-badge">Quiz — <span id="nav-garden">Ayurveda</span></div>
+    <a class="btn-back" href="garden.html" id="back-link">&#8592; Garden</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- INTRO SCREEN -->
+  <div class="screen active fade-in" id="screen-intro">
+    <div class="intro-wrap">
+      <svg class="intro-icon" viewBox="0 0 80 80" fill="none">
+        <circle cx="40" cy="40" r="36" stroke="rgba(61,220,132,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
+        <circle cx="40" cy="40" r="28" stroke="rgba(61,220,132,0.2)" stroke-width="0.6"/>
+        <path d="M40 58 Q26 48 28 34 Q32 18 40 24 Q48 18 52 34 Q54 48 40 58Z" fill="rgba(45,106,53,0.8)" stroke="rgba(61,220,132,0.5)" stroke-width="0.8"/>
+        <path d="M40 58 Q40 40 40 24" stroke="rgba(61,220,132,0.5)" stroke-width="1" stroke-linecap="round"/>
+        <circle cx="40" cy="40" r="4" fill="rgba(61,220,132,0.9)"/>
+        <circle cx="40" cy="8" r="1.5" fill="rgba(61,220,132,0.5)"/>
+        <circle cx="40" cy="72" r="1.5" fill="rgba(61,220,132,0.5)"/>
+        <circle cx="8" cy="40" r="1.5" fill="rgba(61,220,132,0.5)"/>
+        <circle cx="72" cy="40" r="1.5" fill="rgba(61,220,132,0.5)"/>
+      </svg>
+      <div class="intro-title" id="intro-title">Ayurveda <span>Quiz</span></div>
+      <p class="intro-sub" id="intro-sub">Test your knowledge of Ayurvedic medicinal plants. Answer 10 questions and see how well you know the ancient science of life.</p>
+      <div class="intro-stats">
+        <div class="istat"><div class="istat-num" id="stat-q">10</div><div class="istat-lbl">Questions</div></div>
+        <div class="istat"><div class="istat-num" id="stat-t">30s</div><div class="istat-lbl">Per Question</div></div>
+        <div class="istat"><div class="istat-num">4</div><div class="istat-lbl">Options each</div></div>
+      </div>
+      <div style="margin-bottom:14px;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">Select Difficulty</div>
+      <div class="difficulty-row">
+        <button class="diff-btn selected" data-d="easy" onclick="setDiff('easy')">Easy · 30s</button>
+        <button class="diff-btn" data-d="medium" onclick="setDiff('medium')">Medium · 20s</button>
+        <button class="diff-btn" data-d="hard" onclick="setDiff('hard')">Hard · 12s</button>
+      </div>
+      <!-- API Key box — prominent, above start button -->
+      <div id="api-key-box" style="margin-bottom:20px;background:rgba(8,22,10,0.8);border:1px solid rgba(61,220,132,0.25);border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Anthropic API Key</div>
+          <div id="key-status" style="font-family:'DM Mono',monospace;font-size:0.68rem;color:#e8c848;">⚠ No key set — click to add</div>
+        </div>
+        <button onclick="showKeyModal()" style="background:linear-gradient(135deg,#1a3a20,#224a28);border:1px solid rgba(61,220,132,0.35);border-radius:8px;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#3ddc84;cursor:pointer;padding:9px 16px;transition:all 0.2s;white-space:nowrap;">🔑 Set API Key</button>
+      </div>
+      <button class="btn-start" onclick="startQuiz()">Start Quiz &#8594;</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="quiz-header">
+      <div class="q-info">Question <span id="q-num">1</span> of <span id="q-total">10</span></div>
+      <div class="timer-wrap">
+        <svg class="timer-ring" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(61,220,132,0.1)" stroke-width="3"/>
+          <circle id="timer-arc" cx="22" cy="22" r="18" fill="none" stroke="#3ddc84" stroke-width="3" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="0" transform="rotate(-90 22 22)"/>
+        </svg>
+        <span class="timer-num" id="timer-num">30</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:10%"></div></div>
+    <div class="score-strip">
+      <div class="score-strip-item"><div class="ss-num" id="ss-score">0</div><div class="ss-lbl">Score</div></div>
+      <div class="ss-div"></div>
+      <div class="score-strip-item"><div class="ss-num" id="ss-correct" style="color:#5adb88;">0</div><div class="ss-lbl">Correct</div></div>
+      <div class="ss-div"></div>
+      <div class="score-strip-item"><div class="ss-num" id="ss-wrong" style="color:#e86060;">0</div><div class="ss-lbl">Wrong</div></div>
+      <div class="ss-div"></div>
+      <div class="score-strip-item"><div class="ss-num" id="ss-streak" style="color:#e8c848;">0</div><div class="ss-lbl">Streak 🔥</div></div>
+    </div>
+    <div class="q-card fade-in" id="q-card">
+      <div class="q-num" id="q-num-label">Question 1</div>
+      <div class="q-cat" id="q-cat">Identification</div>
+      <div class="q-text" id="q-text">Question text goes here</div>
+    </div>
+    <div class="options" id="options"></div>
+    <div class="explanation" id="explanation">
+      <div class="expl-title">Explanation</div>
+      <div class="expl-text" id="expl-text"></div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next Question &#8594;</button>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen" id="screen-result">
+    <div class="result-wrap fade-in">
+      <div class="result-circle">
+        <svg viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(61,220,132,0.1)" stroke-width="8"/>
+          <circle id="result-arc" cx="70" cy="70" r="58" fill="none" stroke="#3ddc84" stroke-width="8" stroke-linecap="round" stroke-dasharray="364" stroke-dashoffset="364" transform="rotate(-90 70 70)" style="transition:stroke-dashoffset 1.5s ease;"/>
+        </svg>
+        <div class="result-pct" id="result-pct">0%</div>
+      </div>
+      <div class="result-grade" id="result-grade">🌱</div>
+      <div class="result-msg" id="result-msg">Keep exploring the garden!</div>
+      <div class="result-breakdown">
+        <div class="rb-card"><div class="rb-num" id="rb-score" style="color:var(--accent);">0</div><div class="rb-lbl">Final Score</div></div>
+        <div class="rb-card"><div class="rb-num" id="rb-correct" style="color:#5adb88;">0</div><div class="rb-lbl">Correct</div></div>
+        <div class="rb-card"><div class="rb-num" id="rb-wrong" style="color:#e86060;">0</div><div class="rb-lbl">Wrong</div></div>
+        <div class="rb-card"><div class="rb-num" id="rb-skipped" style="color:#e8c848;">0</div><div class="rb-lbl">Skipped</div></div>
+        <div class="rb-card"><div class="rb-num" id="rb-streak" style="color:#e8a848;">0</div><div class="rb-lbl">Best Streak</div></div>
+        <div class="rb-card"><div class="rb-num" id="rb-time" style="color:var(--muted);">0s</div><div class="rb-lbl">Avg Time</div></div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-action primary" onclick="retryQuiz()">Retry Quiz &#8594;</button>
+        <a class="btn-action ghost" href="scoreboard.html" id="sb-link">Scoreboard &#8594;</a>
+        <a class="btn-action ghost" id="garden-link" href="garden.html">Back to Garden</a>
+      </div>
+      <div class="review-list">
+        <div class="review-title">Question Review</div>
+        <div id="review-items"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+/* ═══════════════ QUESTION BANK ═══════════════ */
+
+/* ═══ AI QUESTION GENERATOR (Anthropic API) ═══ */
+const GARDEN_NAMES={A:'Ayurveda',Y:'Yoga & Naturopathy',U:'Unani',S:'Siddha',H:'Homeopathy'};
+const GARDEN_DESCS={
+  A:'Test your knowledge of Ayurvedic medicinal plants — from Tulsi to Shilajit.',
+  Y:'How well do you know the healing herbs used in Yoga & Naturopathy?',
+  U:'Explore the Greco-Arabic herbal wisdom of Unani medicine.',
+  S:'Challenge yourself on the ancient Tamil Siddha healing tradition.',
+  H:'Test your knowledge of homeopathic remedies and their indications.'
+};
+
+const GARDEN_CONTEXT = {
+  A:`Ayurveda — 5000-year-old Indian healing system. Key plants: Tulsi, Ashwagandha, Neem, Amla, Brahmi, Turmeric, Giloy, Shatavari, Arjuna, Haritaki, Triphala, Shilajit, Bhringraj, Gudmar, Pippali, Manjistha, Punarnava, Shankhpushpi, Vasaka, Kalmegh, Trikatu, Dashmool. Concepts: Tridosha (Vata/Pitta/Kapha), Rasayana, Panchakarma, Agni, Ojas, Prakriti.`,
+  Y:`Yoga & Naturopathy — natural healing using plants, lifestyle and nature cures. Key plants: Moringa, Aloe Vera, Chamomile, Lavender, Peppermint, Wheatgrass, Spirulina, Flaxseed, Dandelion, Echinacea, Milk Thistle, Valerian, St Johns Wort, Elderberry, Calendula, Rosemary, Ginger, Turmeric, Holy Basil, Nettle, Burdock. Concepts: naturopathic diet, detox, adaptogens, antioxidants, phytochemicals.`,
+  U:`Unani — Greco-Arabic medicine based on four humors (Dam/Balgham/Safra/Sauda). Key plants: Mulethi, Kalonji, Senna, Rose, Sandalwood, Ginger, Henna, Unnab, Babool, Zafran, Mastagi, Berberis. Key concepts: Mizaj (temperament), Arkan (elements), preparations like Arq/Roghan/Majoon/Habbe/Sharbat. Key figures: Ibn Sina (Avicenna).`,
+  S:`Siddha — ancient Tamil healing system developed by 18 Siddhars. Key plants: Nilavembu, Keelanelli, Vilvam (Bael), Adathodai, Nochi, Karisilankanni, Pirandai, Avarai, Thoothuvalai, Kondrai, Vetpalai, Nannari. Key concepts: Vatham/Pitham/Kapam, Muppu (universal catalyst), Kayakalpa (rejuvenation), use of metals and minerals, Agasthiyar as father of Siddha.`,
+  H:`Homeopathy — founded by Samuel Hahnemann in 1796. Key remedies: Arnica, Belladonna, Chamomilla, Pulsatilla, Rhus Tox, Nux Vomica, Calendula, Bryonia, Sulphur, Phosphorus, Lycopodium, Sepia, Natrum Mur, Lachesis, Apis, Gelsemium, Ignatia, Thuja, Arsenicum. Key principles: Similia similibus curantur, Potentization, Law of Minimum Dose, Miasms (Psora/Sycosis/Syphilis), Constitutional remedy, Simillimum, Proving.`
+};
+
+const CATEGORIES = {
+  A:['Identification','Properties','Uses','Chemistry','Theory','Formulations','Nutrition','Minerals'],
+  Y:['Identification','Nutrition','Uses','Mechanism','Antioxidant','Clinical','Aromatherapy','Detox'],
+  U:['History','Theory','Identification','Chemistry','Uses','Preparations','Classification','Etymology'],
+  S:['History','Theory','Identification','Uses','Botany','Chemistry','Etymology','Nutrition'],
+  H:['Principles','History','Materia Medica','Uses','Posology','Mechanism','Theory','Clinical']
+};
+
+/* ─── Fallback question bank (used if API call fails) ─── */
+const FALLBACK = {
+  A:[
+    {q:"Which plant is the sacred herb of Ayurveda and is called 'Holy Basil'?",opts:["Neem","Tulsi","Brahmi","Giloy"],ans:1,cat:"Identification",expl:"Tulsi (Ocimum tenuiflorum) is the sacred herb of Ayurveda, revered as divine and used as a powerful immunomodulator for over 3,000 years."},
+    {q:"Ashwagandha is classified as which type of Ayurvedic herb?",opts:["Laxative","Adaptogen","Diuretic","Expectorant"],ans:1,cat:"Properties",expl:"Ashwagandha (Withania somnifera) is a renowned adaptogen that helps the body manage stress by regulating cortisol levels."},
+    {q:"Which Ayurvedic formulation combines Amla, Haritaki, and Bibhitaki?",opts:["Chyawanprash","Triphala","Dashmool","Trikatu"],ans:1,cat:"Formulations",expl:"Triphala is the ancient tri-fruit formula combining these three fruits for complete digestive wellness and detoxification."},
+    {q:"Curcumin, the active compound in Turmeric, primarily acts as which type of agent?",opts:["Diuretic","Anti-inflammatory","Laxative","Sedative"],ans:1,cat:"Chemistry",expl:"Curcumin inhibits NF-κB pathways and COX-2 enzymes, making it one of the most potent natural anti-inflammatory compounds known."},
+    {q:"Which Ayurvedic herb is called 'Guduchi' and 'Amrita'?",opts:["Brahmi","Shatavari","Giloy","Punarnava"],ans:2,cat:"Identification",expl:"Giloy (Tinospora cordifolia) is called Guduchi and Amrita. Its stem is used to powerfully stimulate innate immunity."},
+    {q:"What are the three doshas in Ayurveda?",opts:["Ojas, Tejas, Prana","Vata, Pitta, Kapha","Rasa, Rakta, Mamsa","Sattva, Rajas, Tamas"],ans:1,cat:"Theory",expl:"The three doshas — Vata (air/space), Pitta (fire/water), and Kapha (earth/water) — are the fundamental bio-energies in Ayurveda."},
+    {q:"Amla is the richest plant source of which vitamin?",opts:["Vitamin A","Vitamin D","Vitamin C","Vitamin B12"],ans:2,cat:"Nutrition",expl:"Amla (Phyllanthus emblica) contains up to 700mg of Vitamin C per 100g — far exceeding citrus fruits and most other plant sources."},
+    {q:"Which Ayurvedic herb is called 'Queen of Herbs'?",opts:["Tulsi","Neem","Shatavari","Brahmi"],ans:2,cat:"Identification",expl:"Shatavari (Asparagus racemosus) is the Queen of Herbs, primarily used as a tonic for female reproductive health and hormonal balance."},
+    {q:"Brahmi is primarily used in Ayurveda for enhancing which function?",opts:["Digestion","Memory and cognition","Heart health","Skin"],ans:1,cat:"Uses",expl:"Brahmi (Bacopa monnieri) is the supreme Ayurvedic nootropic — clinically proven to enhance memory and protect neurons from degeneration."},
+    {q:"Which Ayurvedic herb is known as the 'Village Pharmacy' of India?",opts:["Tulsi","Neem","Giloy","Ashwagandha"],ans:1,cat:"Identification",expl:"Neem (Azadirachta indica) is the Village Pharmacy — every part of the tree has profound antibacterial, antifungal, and blood-purifying properties."}
+  ],
+  Y:[
+    {q:"Which plant is called the 'Miracle Tree' in naturopathy?",opts:["Spirulina","Moringa","Wheatgrass","Aloe Vera"],ans:1,cat:"Identification",expl:"Moringa oleifera is the Miracle Tree — its leaves contain more nutrients gram for gram than most other foods on earth."},
+    {q:"Milk Thistle protects which organ?",opts:["Heart","Kidney","Liver","Pancreas"],ans:2,cat:"Uses",expl:"Silymarin from Milk Thistle regenerates liver cells and protects against toxin damage — one of the most potent hepatoprotective compounds."},
+    {q:"Which compound in Peppermint creates its cooling effect?",opts:["Thymol","Menthol","Eugenol","Linalool"],ans:1,cat:"Chemistry",expl:"Menthol activates cold-sensitive TRPM8 receptors creating a cooling sensation without actual temperature change."},
+    {q:"Chamomile works for sleep by affecting which receptor?",opts:["Serotonin","Dopamine","GABA-A","Melatonin"],ans:2,cat:"Mechanism",expl:"Apigenin in chamomile binds to GABA-A benzodiazepine receptors, producing mild sedation and anxiolytic effects."},
+    {q:"Which herb has the highest ORAC antioxidant score?",opts:["Oregano","Clove","Cinnamon","Thyme"],ans:1,cat:"Antioxidant",expl:"Clove (Syzygium aromaticum) has one of the highest ORAC scores of any food. Eugenol is its primary antioxidant compound."},
+    {q:"Dandelion is a tonic for which two organs?",opts:["Heart and lungs","Liver and kidneys","Brain and nerves","Skin and joints"],ans:1,cat:"Uses",expl:"Dandelion promotes bile flow for liver detoxification and acts as a natural diuretic supporting kidney function."},
+    {q:"Which spice enhances bioavailability of other nutrients by up to 2000%?",opts:["Cumin","Black Pepper","Cardamom","Coriander"],ans:1,cat:"Mechanism",expl:"Piperine in Black Pepper inhibits drug metabolism enzymes, dramatically increasing absorption of curcumin, vitamins, and other compounds."},
+    {q:"Elderberry reduces influenza duration by approximately how many days?",opts:["1 day","2 days","4 days","7 days"],ans:2,cat:"Clinical",expl:"Clinical trials show Sambucol (elderberry) reduces influenza duration by about 4 days and significantly reduces severity of symptoms."},
+    {q:"Which plant contains the highest plant-based omega-3 fatty acids?",opts:["Flaxseed","Chia seed","Hemp seed","Spirulina"],ans:0,cat:"Nutrition",expl:"Flaxseed (Linum usitatissimum) is one of the richest plant sources of ALA omega-3, crucial for heart and brain health."},
+    {q:"Valerian root works for sleep by increasing which neurotransmitter?",opts:["Serotonin","Dopamine","GABA","Norepinephrine"],ans:2,cat:"Mechanism",expl:"Valerenic acid inhibits GABA breakdown and modulates GABA-A receptors, reducing neuronal excitability and promoting sleep."}
+  ],
+  U:[
+    {q:"What does 'Unani' literally mean?",opts:["Arabic","Persian","Greek","Turkish"],ans:2,cat:"History",expl:"Unani means 'Greek' — the system is based on the teachings of Hippocrates and Galen, adapted through Arabic and Persian traditions."},
+    {q:"Which are the four humors in Unani medicine?",opts:["Blood, bile, phlegm, black bile","Fire, water, air, earth","Vata, pitta, kapha, rasa","Ojas, tejas, prana, anna"],ans:0,cat:"Theory",expl:"Unani medicine is based on Dam (blood), Balgham (phlegm), Safra (yellow bile), and Sauda (black bile) — the four humors."},
+    {q:"Kalonji is also known as which sacred seed?",opts:["Ajwain","Habbatus Sauda","Methi","Zeera"],ans:1,cat:"Identification",expl:"Habbatus Sauda (black seed) is Kalonji. The Prophet Muhammad referenced it as a cure for everything except death."},
+    {q:"What does 'Mizaj' mean in Unani?",opts:["The patient's age","The inherent temperament: hot/cold/moist/dry","The season of birth","Geographic origin of herbs"],ans:1,cat:"Theory",expl:"Mizaj is the fundamental Unani temperament concept — every substance and person has a combination of hot/cold and moist/dry qualities."},
+    {q:"Who wrote the famous Unani encyclopedia 'Al-Qanun fi al-Tibb'?",opts:["Al-Razi","Ibn Sina","Ibn Rushd","Al-Biruni"],ans:1,cat:"History",expl:"Ibn Sina (Avicenna) wrote the Canon of Medicine in the 11th century — the standard medical textbook for over 600 years."},
+    {q:"Which Unani preparation is a pill or tablet?",opts:["Arq","Roghan","Habbe","Sharbat"],ans:2,cat:"Preparations",expl:"Habbe (plural: Habub) are pills in Unani — herbal powders bound with honey or wax into round pills."},
+    {q:"Zarishk contains which antibiotic alkaloid?",opts:["Berbamine","Berberine","Colchicine","Quinine"],ans:1,cat:"Chemistry",expl:"Berberine from Berberis vulgaris kills H. pylori, regulates blood sugar by activating AMPK, and protects the liver."},
+    {q:"Mulethi contains which sweet compound?",opts:["Glycyrrhizin","Quercetin","Thymol","Berberine"],ans:0,cat:"Chemistry",expl:"Glycyrrhizin is the primary compound in licorice root — 50 times sweeter than sugar with anti-inflammatory properties."},
+    {q:"Senna is classified as which type of medicine in Unani?",opts:["Musakkin (sedative)","Mushil (purgative)","Muqawwi (tonic)","Mudirr (diuretic)"],ans:1,cat:"Classification",expl:"Senna is the classic Mushil (purgative) in Unani. Anthraquinone glycosides stimulate peristalsis for bowel cleansing."},
+    {q:"Which Unani herb is a resin from Chios island that kills H. pylori?",opts:["Kundur","Mastagi","Luban","Samgha"],ans:1,cat:"Identification",expl:"Mastagi (Pistacia lentiscus mastic) from Chios, Greece, is clinically proven to eradicate H. pylori and treat peptic ulcers."}
+  ],
+  S:[
+    {q:"Nilavembu is called which in English?",opts:["King of Bitters","Bitter gourd","Neem tree","Indian gentian"],ans:0,cat:"Identification",expl:"Nilavembu (Andrographis paniculata) is the King of Bitters — validated for dengue, malaria, and fever management."},
+    {q:"Who is considered the father of Siddha medicine?",opts:["Charaka","Agasthiyar","Ibn Sina","Hippocrates"],ans:1,cat:"History",expl:"Agasthiyar (Agastya) is revered as the father of Siddha medicine, said to have received knowledge from Shiva and Parvati."},
+    {q:"What does 'Siddha' mean in Tamil?",opts:["Sacred","Perfected or attained","Ancient","Natural"],ans:1,cat:"Etymology",expl:"Siddha means 'perfected' or 'attained' — the Siddhars were accomplished beings who had achieved supernatural powers through yoga."},
+    {q:"Pirandai is the highest plant source of which mineral?",opts:["Iron","Zinc","Calcium","Magnesium"],ans:2,cat:"Nutrition",expl:"Pirandai (Cissus quadrangularis) contains up to 1000mg calcium per 100g dry weight — the primary Siddha herb for bone fractures."},
+    {q:"What is 'Muppu' in Siddha medicine?",opts:["The three doshas","A universal catalyst from three mineral salts","The three fruits of Triphala","The three stages of life"],ans:1,cat:"Theory",expl:"Muppu is a universal catalyst made from three mineral salts that enhances the potency of all Siddha medicines."},
+    {q:"Keelanelli is called 'Stone Breaker' because it treats which condition?",opts:["Gallstones","Kidney stones","Bone fractures","Dental calculus"],ans:1,cat:"Uses",expl:"Keelanelli (Phyllanthus niruri) relaxes ureter smooth muscle and inhibits calcium oxalate crystal growth — clinically proven for kidney stones."},
+    {q:"Which Siddha herb contains vasicine for bronchodilation?",opts:["Nochi","Adathodai","Thoothuvalai","Karpooravalli"],ans:1,cat:"Uses",expl:"Adathodai (Justicia adhatoda) contains vasicine, a bronchodilator alkaloid — primary Siddha herb for asthma and bronchitis."},
+    {q:"What are the three humors in Siddha medicine?",opts:["Vata, Pitta, Kapha","Vatham, Pitham, Kapam","Dam, Balgham, Safra","Ojas, Tejas, Prana"],ans:1,cat:"Theory",expl:"Siddha recognizes Vatham (air), Pitham (fire), and Kapam (water/earth) — similar to Ayurvedic doshas but with different therapeutics."},
+    {q:"Avarai flowers are used in Siddha primarily for which condition?",opts:["Respiratory infections","Diabetes and eye weakness","Bone fractures","Skin cancer"],ans:1,cat:"Uses",expl:"Avarai (Cassia auriculata) has significant hypoglycemic activity and is used for diabetes management and strengthening vision."},
+    {q:"Vellarugu contains which compound used for skin diseases?",opts:["Plumbagin","Berberine","Vasicine","Curcumin"],ans:0,cat:"Chemistry",expl:"Plumbagin from Plumbago zeylanica has antimicrobial, anti-leishmanial, and cytotoxic properties — used for skin diseases and malaria."}
+  ],
+  H:[
+    {q:"What is the fundamental principle of Homeopathy?",opts:["Contraria contrariis curantur","Similia similibus curantur","Tridosha balance","Four humor theory"],ans:1,cat:"Principles",expl:"Similia similibus curantur means 'like cures like' — the foundational Law of Similars in Homeopathy."},
+    {q:"Who founded Homeopathy and in which year?",opts:["Hahnemann, 1796","Hippocrates, 400 BCE","Paracelsus, 1530","Jenner, 1798"],ans:0,cat:"History",expl:"Samuel Hahnemann founded Homeopathy in 1796. His Organon of Medicine systematized homeopathic theory and practice."},
+    {q:"What is 'Potentization' in Homeopathy?",opts:["Growing herbs in optimal conditions","Serial dilution with vigorous shaking (succussion)","Combining multiple remedies","Extracting active compounds"],ans:1,cat:"Principles",expl:"Potentization is serial dilution with succussion (shaking) between each dilution — paradoxically increasing remedial power while reducing toxicity."},
+    {q:"Arnica Montana is the #1 first-aid remedy for which condition?",opts:["Fever","Physical trauma and bruising","Digestive upset","Anxiety"],ans:1,cat:"Materia Medica",expl:"Arnica Montana is used for ANY physical trauma — bruising, muscle soreness, shock, and post-surgical pain. 'Arnica first' for all injuries."},
+    {q:"Nux Vomica is called the 'modern life remedy' for which reason?",opts:["It treats digital addiction","It addresses overwork, stimulant abuse, and digestive complaints","It cures insomnia from screens","It reduces modern stress"],ans:1,cat:"Materia Medica",expl:"Nux Vomica suits the driven, irritable person who overindulges in stimulants and overworks — the quintessential modern lifestyle portrait."},
+    {q:"Belladonna 30C is given for fever with which characteristic?",opts:["Gradual onset with chilliness","Sudden violent onset with burning heat","Intermittent fever with sweating","Low-grade continuous fever"],ans:1,cat:"Materia Medica",expl:"Belladonna covers sudden violent fevers with burning heat, dry flushed face, throbbing headache, and dilated pupils."},
+    {q:"Which potency is generally used for acute conditions?",opts:["6C or 30C","200C or 1M","LM potencies","All are equal"],ans:0,cat:"Posology",expl:"Lower potencies (6C, 12C, 30C) are used for acute conditions with frequent dosing. Higher potencies suit deep constitutional prescribing."},
+    {q:"Pulsatilla patients are classically described as which personality type?",opts:["Rigid and intolerant of heat","Gentle, weepy, yielding with changeable symptoms","Fearful, chilly perfectionist","Bold, dominant, jealous"],ans:1,cat:"Materia Medica",expl:"Pulsatilla (wind flower) suits gentle, mild, weepy individuals whose symptoms constantly change and shift location."},
+    {q:"What are the three primary miasms identified by Hahnemann?",opts:["Psora, Sycosis, Syphilis","Vata, Pitta, Kapha","Phlegm, Bile, Blood","Acute, Chronic, Terminal"],ans:0,cat:"Principles",expl:"Hahnemann identified Psora (itch), Sycosis (gonorrhea), and Syphilis as the three primary miasms — inherited disease taints blocking cure."},
+    {q:"Calendula officinalis in Homeopathy is best used for which wound type?",opts:["Surgical incisions only","Clean lacerations and cuts","Burns only","Puncture wounds only"],ans:1,cat:"Uses",expl:"Calendula (marigold) promotes healing of lacerations and clean cuts, prevents excessive granulation tissue, and has antiseptic properties."}
+  ]
+};
+
+/* ─── AI Question Generator ─── */
+async function generateQuestionsAI(garden, count, difficulty) {
+  const ctx = GARDEN_CONTEXT[garden];
+  const cats = CATEGORIES[garden];
+  const diffNote = difficulty==='easy'
+    ? 'straightforward factual questions suitable for beginners'
+    : difficulty==='medium'
+    ? 'moderately challenging questions requiring good knowledge'
+    : 'advanced questions requiring deep understanding of concepts, chemistry, and clinical applications';
+
+  const prompt = `You are an expert in AYUSH traditional medicine systems. Generate exactly ${count} multiple-choice quiz questions about ${GARDEN_NAMES[garden]}.
+
+Context about this system:
+${ctx}
+
+Requirements:
+- Difficulty level: ${difficulty} (${diffNote})
+- Each question must have exactly 4 options (A, B, C, D)
+- Only one correct answer per question
+- Questions must cover different categories: ${cats.join(', ')}
+- Questions must be factually accurate and educationally valuable
+- Make questions DIFFERENT from standard textbook questions — focus on interesting facts, mechanisms, history, and clinical applications
+- Never repeat the same question twice in a session
+
+Respond ONLY with a valid JSON array. No explanation, no markdown, no backticks. Just the raw JSON array:
+[
+  {
+    "q": "Question text here?",
+    "opts": ["Option A", "Option B", "Option C", "Option D"],
+    "ans": 0,
+    "cat": "Category",
+    "expl": "Brief explanation of why the answer is correct (1-2 sentences)"
+  }
+]
+
+The "ans" field must be the zero-based index (0, 1, 2, or 3) of the correct option in the opts array.`;
+
+  const apiKey = getAPIKey();
+  if (!apiKey) throw new Error('No API key set');
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4000,
+      messages: [{role: 'user', content: prompt}]
+    })
+  });
+
+  if (!response.ok) {
+    const errBody = await response.json().catch(()=>({}));
+    throw new Error('API error ' + response.status + ': ' + (errBody.error?.message || response.statusText));
+  }
+  const data = await response.json();
+  const text = data.content[0].text.trim();
+  // Strip any accidental markdown fences
+  const clean = text.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+  const questions = JSON.parse(clean);
+  // Validate structure
+  if (!Array.isArray(questions) || questions.length < count) throw new Error('Invalid response — got ' + (Array.isArray(questions) ? questions.length : typeof questions) + ' questions');
+  return questions.slice(0, count).map(q => ({
+    q: String(q.q || q.question || ''),
+    opts: Array.isArray(q.opts) ? q.opts : (q.options || []),
+    ans: typeof q.ans==='number' ? q.ans : parseInt(q.ans) || 0,
+    cat: String(q.cat || q.category || 'General'),
+    expl: String(q.expl || q.explanation || '')
+  }));
+}
+
+/* ─── API Key management ─── */
+function getAPIKey() {
+  return localStorage.getItem('ayush_api_key') || '';
+}
+function saveAPIKey(key) {
+  localStorage.setItem('ayush_api_key', key.trim());
+}
+
+/* API key injected directly in generateQuestionsAI */
+
+/* ═══ STATE ═══ */
+let cG='A', cDiff='easy', cQs=[], cIdx=0, cScore=0, cCorrect=0, cWrong=0, cSkipped=0;
+let cStreak=0, cBestStreak=0, cTimerInterval=null, cTimeLeft=30, cAnswered=false;
+let cTimes=[], cUserAnswers=[], TIMER_MAX=30;
+const DIFF_TIME={easy:30,medium:20,hard:12};
+const DIFF_PTS={easy:10,medium:15,hard:25};
+
+/* ═══ INIT ═══ */
+function getGardenFromURL(){
+  const p=new URLSearchParams(window.location.search);
+  const g=p.get('g');
+  return(g&&QB[g])?g:'A';
+}
+
+/* GARDEN_NAMES and GARDEN_DESCS defined above in AI section */
+
+function setDiff(d){
+  cDiff=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('selected',b.dataset.d===d));
+  TIMER_MAX=DIFF_TIME[d];
+  document.getElementById('stat-t').textContent=TIMER_MAX+'s';
+}
+
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+/* AI generation replaces static question rotation */
+
+async function startQuiz(){
+  const apiKey = getAPIKey();
+  if(!apiKey){
+    showKeyModal();
+    return;
+  }
+  // Show loading state on button
+  const btn = document.querySelector('.btn-start');
+  const origText = btn.textContent;
+  btn.textContent = 'Generating questions...';
+  btn.disabled = true;
+  btn.style.opacity='0.7';
+  showLoadingDots();
+
+  cIdx=0;cScore=0;cCorrect=0;cWrong=0;cSkipped=0;
+  cStreak=0;cBestStreak=0;cTimes=[];cUserAnswers=[];
+
+  try {
+    cQs = await generateQuestionsAI(cG, 10, cDiff);
+    document.getElementById('screen-intro').classList.remove('active');
+    document.getElementById('screen-quiz').classList.add('active');
+    document.getElementById('q-total').textContent=cQs.length;
+    loadQuestion();
+  } catch(err) {
+    console.warn('AI generation failed, using fallback:', err.message);
+    // Use fallback questions
+    cQs = shuffle([...FALLBACK[cG]]).slice(0,10);
+    document.getElementById('screen-intro').classList.remove('active');
+    document.getElementById('screen-quiz').classList.add('active');
+    document.getElementById('q-total').textContent=cQs.length;
+    loadQuestion();
+    showNotice('AI error: ' + err.message + ' — using offline questions.');
+  } finally {
+    btn.textContent = origText;
+    btn.disabled = false;
+    btn.style.opacity='1';
+    hideLoadingDots();
+  }
+}
+
+function showLoadingDots(){
+  const d=document.getElementById('loading-dots');
+  if(d)d.style.display='block';
+}
+function hideLoadingDots(){
+  const d=document.getElementById('loading-dots');
+  if(d)d.style.display='none';
+}
+function showNotice(msg){
+  const n=document.getElementById('ai-notice');
+  if(n){n.textContent=msg;n.style.display='block';setTimeout(()=>n.style.display='none',5000);}
+}
+function showKeyModal(){
+  document.getElementById('key-modal').style.display='flex';
+}
+function closeKeyModal(){
+  document.getElementById('key-modal').style.display='none';
+}
+function saveKey(){
+  const k=document.getElementById('key-input').value.trim();
+  if(!k||!k.startsWith('sk-')){alert('Invalid key. It should start with sk-ant-...');return;}
+  saveAPIKey(k);
+  closeKeyModal();
+  const ks=document.getElementById('key-status');
+  if(ks){
+    const masked='sk-ant-...'+k.slice(-6);
+    ks.textContent='✓ Key saved ('+masked+') — AI questions enabled';
+    ks.style.color='#5adb88';
+  }
+}
+
+function loadQuestion(){
+  if(cIdx>=cQs.length){endQuiz();return;}
+  const q=cQs[cIdx];
+  cAnswered=false;
+  document.getElementById('q-num').textContent=cIdx+1;
+  document.getElementById('q-num-label').textContent='Question '+(cIdx+1);
+  document.getElementById('q-cat').textContent=q.cat;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('prog-fill').style.width=(((cIdx+1)/cQs.length)*100)+'%';
+  document.getElementById('explanation').classList.remove('show');
+  document.getElementById('btn-next').classList.remove('show');
+  // options
+  const opts=document.getElementById('options');
+  opts.innerHTML='';
+  const letters=['A','B','C','D'];
+  q.opts.forEach((o,i)=>{
+    const div=document.createElement('div');
+    div.className='opt';
+    div.dataset.idx=i;
+    div.innerHTML='<span class="opt-letter">'+letters[i]+'</span><span class="opt-text">'+o+'</span>';
+    div.addEventListener('click',()=>answerQ(i,div));
+    opts.appendChild(div);
+  });
+  // card animation
+  const card=document.getElementById('q-card');
+  card.style.opacity='0';card.style.transform='translateY(12px)';
+  setTimeout(()=>{card.style.transition='all 0.35s ease';card.style.opacity='1';card.style.transform='translateY(0)';},10);
+  startTimer();
+}
+
+function startTimer(){
+  clearInterval(cTimerInterval);
+  cTimeLeft=TIMER_MAX;
+  const tNum=document.getElementById('timer-num');
+  const arc=document.getElementById('timer-arc');
+  const circumference=2*Math.PI*18;
+  tNum.textContent=cTimeLeft;
+  tNum.className='timer-num';
+  arc.style.stroke='#3ddc84';
+  const tStart=Date.now();
+  cTimerInterval=setInterval(()=>{
+    cTimeLeft--;
+    tNum.textContent=cTimeLeft;
+    const pct=cTimeLeft/TIMER_MAX;
+    arc.style.strokeDashoffset=circumference*(1-pct);
+    if(cTimeLeft<=5){tNum.className='timer-num danger';arc.style.stroke='#e86060';}
+    else if(cTimeLeft<=10){tNum.className='timer-num warn';arc.style.stroke='#e8c848';}
+    if(cTimeLeft<=0){clearInterval(cTimerInterval);timeUp();}
+  },1000);
+  cTimes.push(tStart);
+}
+
+function timeUp(){
+  if(cAnswered)return;
+  cAnswered=true;cSkipped++;cStreak=0;
+  cUserAnswers.push({q:cQs[cIdx],chosen:-1,correct:cQs[cIdx].ans,timeTaken:TIMER_MAX});
+  // show correct
+  const opts=document.querySelectorAll('.opt');
+  opts.forEach(o=>{o.classList.add('locked');if(parseInt(o.dataset.idx)===cQs[cIdx].ans)o.classList.add('correct');});
+  document.getElementById('expl-text').textContent=cQs[cIdx].expl;
+  document.getElementById('explanation').classList.add('show');
+  document.getElementById('btn-next').classList.add('show');
+  updateStrip();
+}
+
+function answerQ(chosen,el){
+  if(cAnswered)return;
+  clearInterval(cTimerInterval);
+  cAnswered=true;
+  const q=cQs[cIdx];
+  const timeTaken=TIMER_MAX-cTimeLeft;
+  const isCorrect=chosen===q.ans;
+  const opts=document.querySelectorAll('.opt');
+  opts.forEach(o=>{
+    o.classList.add('locked');
+    const i=parseInt(o.dataset.idx);
+    if(i===q.ans)o.classList.add('correct');
+    else if(i===chosen&&!isCorrect)o.classList.add('wrong');
+  });
+  if(isCorrect){
+    cCorrect++;cStreak++;
+    if(cStreak>cBestStreak)cBestStreak=cStreak;
+    const pts=DIFF_PTS[cDiff]+(cStreak>1?Math.min(cStreak-1,5)*2:0);
+    cScore+=pts;
+  } else {
+    cWrong++;cStreak=0;
+  }
+  cUserAnswers.push({q,chosen,correct:q.ans,timeTaken,isCorrect});
+  document.getElementById('expl-text').textContent=q.expl;
+  document.getElementById('explanation').classList.add('show');
+  document.getElementById('btn-next').classList.add('show');
+  updateStrip();
+}
+
+function updateStrip(){
+  document.getElementById('ss-score').textContent=cScore;
+  document.getElementById('ss-correct').textContent=cCorrect;
+  document.getElementById('ss-wrong').textContent=cWrong;
+  document.getElementById('ss-streak').textContent=cStreak;
+}
+
+function nextQuestion(){
+  cIdx++;
+  document.getElementById('btn-next').classList.remove('show');
+  document.getElementById('explanation').classList.remove('show');
+  loadQuestion();
+}
+
+function endQuiz(){
+  clearInterval(cTimerInterval);
+  document.getElementById('screen-quiz').classList.remove('active');
+  document.getElementById('screen-result').classList.add('active');
+  const pct=Math.round((cCorrect/cQs.length)*100);
+  const avgTime=cUserAnswers.length>0?Math.round(cUserAnswers.reduce((a,b)=>a+b.timeTaken,0)/cUserAnswers.length):0;
+  // result circle
+  setTimeout(()=>{
+    const arc=document.getElementById('result-arc');
+    const circumference=2*Math.PI*58;
+    arc.style.strokeDashoffset=circumference*(1-pct/100);
+    arc.style.stroke=pct>=80?'#3ddc84':pct>=60?'#e8c848':'#e86060';
+  },200);
+  document.getElementById('result-pct').textContent=pct+'%';
+  // grade
+  let grade,msg;
+  if(pct>=90){grade='🌳 Master';msg='Exceptional! You have mastered the art of herbal knowledge.';}
+  else if(pct>=80){grade='🌿 Expert';msg='Excellent work! Your knowledge of medicinal plants is impressive.';}
+  else if(pct>=70){grade='🌱 Learner';msg='Good job! Keep exploring the garden to deepen your knowledge.';}
+  else if(pct>=60){grade='🍃 Beginner';msg='A decent start! Visit the garden more to learn the plants better.';}
+  else{grade='🌾 Seedling';msg='Keep studying! Every great herbalist started as a beginner.';}
+  document.getElementById('result-grade').textContent=grade;
+  document.getElementById('result-msg').textContent=msg;
+  document.getElementById('rb-score').textContent=cScore;
+  document.getElementById('rb-correct').textContent=cCorrect;
+  document.getElementById('rb-wrong').textContent=cWrong;
+  document.getElementById('rb-skipped').textContent=cSkipped;
+  document.getElementById('rb-streak').textContent=cBestStreak;
+  document.getElementById('rb-time').textContent=avgTime+'s';
+  // save to localStorage
+  const u=JSON.parse(localStorage.getItem('ayush_user')||'{}');
+  const scores=JSON.parse(localStorage.getItem('ayush_scores')||'[]');
+  scores.push({
+    name:u.name||'Guest',garden:cG,gardenName:GARDEN_NAMES[cG],
+    score:cScore,pct,correct:cCorrect,wrong:cWrong,skipped:cSkipped,
+    bestStreak:cBestStreak,difficulty:cDiff,date:new Date().toISOString()
+  });
+  localStorage.setItem('ayush_scores',JSON.stringify(scores));
+  // review
+  const rev=document.getElementById('review-items');
+  rev.innerHTML=cUserAnswers.map(a=>{
+    const icon=a.chosen===-1?'skip':a.isCorrect?'ok':'bad';
+    const label=a.chosen===-1?'⏱':'✓/✗';
+    const choseTxt=a.chosen>=0?a.q.opts[a.chosen]:'Time up';
+    return `<div class="review-item"><div class="ri-icon ${icon}">${icon==='ok'?'✓':icon==='bad'?'✗':'⏱'}</div><div class="ri-content"><div class="ri-q">${a.q.q}</div><div class="ri-a">Your answer: ${choseTxt} · Correct: <span>${a.q.opts[a.correct]}</span></div></div></div>`;
+  }).join('');
+  // links
+  document.getElementById('sb-link').href='scoreboard.html';
+  document.getElementById('garden-link').href='garden.html?g='+cG;
+}
+
+
+
+function retryQuiz(){
+  document.getElementById('screen-result').classList.remove('active');
+  document.getElementById('screen-intro').classList.add('active');
+  /* Reset diff button UI */
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('selected',b.dataset.d===cDiff));
+}
+
+/* ═══ BG CANVAS ═══ */
+const cv=document.getElementById('cvs'),ctx=cv.getContext('2d');
+let W,H,pts=[];
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+resize();window.addEventListener('resize',()=>{resize();initPts();});
+function initPts(){pts=[];const N=Math.floor((W*H)/22000);for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.6+0.4,a:Math.random()*0.4+0.08,hue:Math.random()*40+100});}
+initPts();
+function drawPts(){ctx.clearRect(0,0,W,H);for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<110){ctx.beginPath();ctx.strokeStyle='rgba(61,220,132,'+(0.04*(1-d/110))+')';ctx.lineWidth=0.4;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}}}for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='hsla('+p.hue+',60%,65%,'+p.a+')';ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;}requestAnimationFrame(drawPts);}
+drawPts();
+
+/* ═══ BOOT ═══ */
+window.addEventListener('load',()=>{
+  const u=localStorage.getItem('ayush_user');
+  if(!u){window.location.href='login.html';return;}
+  // Show API key status on intro
+  const apiKey=localStorage.getItem('ayush_api_key');
+  const ks=document.getElementById('key-status');
+  if(ks){
+    if(apiKey){
+      const masked='sk-ant-...'+apiKey.slice(-6);
+      ks.textContent='✓ Key saved ('+masked+') — AI questions enabled';
+      ks.style.color='#5adb88';
+    } else {
+      ks.textContent='⚠ No key set — click to add';
+      ks.style.color='#e8c848';
+    }
+  }
+  cG=getGardenFromURL();
+  document.getElementById('nav-garden').textContent=GARDEN_NAMES[cG];
+  document.getElementById('back-link').href='garden.html?g='+cG;
+  document.getElementById('intro-title').innerHTML=GARDEN_NAMES[cG]+' <span>Quiz</span>';
+  document.getElementById('intro-sub').textContent=GARDEN_DESCS[cG];
+  document.getElementById('stat-q').textContent='25';
+  document.getElementById('lsub').textContent='Loading '+GARDEN_NAMES[cG]+' Quiz...';
+  const lf=document.getElementById('lf');let lp=0;
+  const lt=setInterval(()=>{lp+=Math.random()*15+8;lf.style.width=Math.min(lp,100)+'%';
+    if(lp>=100){clearInterval(lt);setTimeout(()=>{const l=document.getElementById('loader');l.style.opacity='0';setTimeout(()=>l.style.display='none',480);},150);}
+  },45);
+});
+</script>
+
+<!-- API Key Modal -->
+<div id="key-modal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:rgba(8,22,10,0.97);border:1px solid rgba(61,220,132,0.25);border-radius:14px;padding:32px 28px;max-width:440px;width:90%;position:relative;">
+    <button onclick="closeKeyModal()" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.08);border:none;color:#aaa;width:28px;height:28px;border-radius:50%;font-size:0.9rem;cursor:pointer;">&#10005;</button>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-family:'Cinzel',serif;font-size:1.4rem;font-weight:600;color:#fff;margin-bottom:6px;">Enter API Key</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;color:var(--muted);">Required for AI-generated questions</div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Anthropic API Key</div>
+      <input id="key-input" type="password" placeholder="sk-ant-api03-..." style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(61,220,132,0.2);border-radius:8px;color:#fff;font-family:'DM Mono',monospace;font-size:0.78rem;padding:10px 14px;outline:none;transition:border 0.2s;" onfocus="this.style.borderColor='rgba(61,220,132,0.5)'" onblur="this.style.borderColor='rgba(61,220,132,0.2)'" onkeydown="if(event.key==='Enter')saveKey()"/>
+    </div>
+    <div style="font-size:0.72rem;color:rgba(106,154,112,0.7);margin-bottom:18px;line-height:1.6;">
+      Get your key from <strong style="color:var(--accent);">console.anthropic.com</strong> → API Keys. Your key is stored only in your browser's localStorage and never sent anywhere except the Anthropic API.
+    </div>
+    <button onclick="saveKey()" style="width:100%;background:linear-gradient(135deg,#1a6b35,#2d9a4e);border:1px solid rgba(61,220,132,0.4);border-radius:8px;color:#fff;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;padding:12px;cursor:pointer;transition:all 0.25s;">Save & Generate Questions &#8594;</button>
+  </div>
+</div>
+
+<!-- Loading dots overlay on intro screen -->
+<div id="loading-dots" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:400;background:rgba(8,22,10,0.92);border:1px solid rgba(61,220,132,0.2);border-radius:20px;padding:10px 22px;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;color:var(--accent);backdrop-filter:blur(10px);text-align:center;">
+  <span id="dots-text">Generating questions with AI</span><span id="dot-anim">...</span>
+</div>
+
+<!-- Notice bar -->
+<div id="ai-notice" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(200,160,40,0.15);border:1px solid rgba(200,160,40,0.35);border-radius:8px;padding:8px 18px;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.08em;color:#e8c848;backdrop-filter:blur(8px);white-space:nowrap;"></div>
+
+<script>
+// Animate dots
+setInterval(()=>{
+  const d=document.getElementById('dot-anim');
+  if(d){const t=d.textContent;d.textContent=t.length>=3?'.':t+'.';}
+},400);
+
+// Pre-fill if key already saved
+window.addEventListener('DOMContentLoaded',()=>{
+  const k=localStorage.getItem('ayush_api_key');
+  if(k){const inp=document.getElementById('key-input');if(inp)inp.value=k;}
+});
+</script>
+</body>
+</html>

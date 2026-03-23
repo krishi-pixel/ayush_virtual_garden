@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AYUSH Herbal Garden — Introduction</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --g1:#030a04;--g2:#071408;--g3:#0d2410;
+  --accent:#3ddc84;--accent2:#56f09a;
+  --leaf1:#2d6a35;--leaf2:#4a9955;--leaf3:#6abf72;
+  --gold:#c8d84a;--text:#d4f0d8;--muted:#6a9a70;
+  --border:rgba(61,220,132,0.18);--cardbg:rgba(8,22,10,0.7);
+}
+html,body{width:100%;min-height:100%;font-family:'Raleway',sans-serif;background:var(--g1);color:var(--text);overflow-x:hidden;}
+
+/* ── FIXED BG ── */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:radial-gradient(ellipse 120% 100% at 50% 110%,#0d3318 0%,#071408 50%,#030a04 100%);}
+.aurora{position:absolute;border-radius:50%;filter:blur(90px);animation:auroraMove var(--dur) ease-in-out infinite alternate;pointer-events:none;}
+@keyframes auroraMove{0%{transform:translate(0,0) scale(1);}100%{transform:translate(var(--tx),var(--ty)) scale(var(--sc));}}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(61,220,132,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(61,220,132,0.035) 1px,transparent 1px);background-size:60px 60px;animation:gp 10s ease-in-out infinite;}
+@keyframes gp{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,transparent 40%,rgba(0,0,0,0.65) 100%);}
+#canvas{position:absolute;inset:0;pointer-events:none;}
+.firefly{position:absolute;border-radius:50%;background:var(--accent);box-shadow:0 0 6px 2px rgba(61,220,132,0.8);animation:ff var(--d) ease-in-out infinite var(--dl);pointer-events:none;}
+@keyframes ff{0%{transform:translate(0,0);opacity:0;}20%{opacity:1;}50%{transform:translate(var(--x),var(--y));opacity:0.8;}100%{transform:translate(calc(var(--x)*0.4),calc(var(--y)*1.6));opacity:0;}}
+.leaf{position:absolute;pointer-events:none;animation:lf var(--ld) linear infinite var(--ldl);opacity:0;}
+@keyframes lf{0%{transform:translateY(-60px) rotate(0deg) translateX(0);opacity:0;}10%{opacity:0.6;}90%{opacity:0.3;}100%{transform:translateY(110vh) rotate(540deg) translateX(var(--lx));opacity:0;}}
+.scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(61,220,132,0.12),transparent);animation:sc 8s linear infinite;pointer-events:none;}
+@keyframes sc{from{top:-2px;}to{top:100vh;}}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:14px 32px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(3,10,4,0.8);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(61,220,132,0.1);}
+.nav-logo{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:600;color:var(--text);letter-spacing:0.06em;}
+.nav-logo span{color:var(--accent);}
+.nav-user{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;color:var(--muted);}
+.nav-user span{color:var(--accent);}
+.btn-enter{
+  background:linear-gradient(135deg,#1a6b35,#2d9a4e);
+  border:1px solid rgba(61,220,132,0.4);border-radius:8px;
+  color:#fff;font-family:'DM Mono',monospace;font-size:0.65rem;
+  letter-spacing:0.14em;text-transform:uppercase;
+  padding:9px 20px;cursor:pointer;transition:all 0.3s;
+  box-shadow:0 4px 16px rgba(29,107,53,0.35);text-decoration:none;display:inline-block;
+}
+.btn-enter:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(29,107,53,0.5);}
+
+/* ── PAGE ── */
+.page{position:relative;z-index:10;padding-top:80px;}
+
+/* ── HERO ── */
+.hero{
+  min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:60px 24px 40px;position:relative;
+}
+.hero-badge{
+  font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--accent);border:1px solid rgba(61,220,132,0.3);border-radius:20px;
+  padding:5px 16px;margin-bottom:24px;display:inline-block;
+  background:rgba(61,220,132,0.06);
+  animation:fadeUp 0.8s ease both;
+}
+.hero-title{
+  font-family:'Cinzel',serif;font-size:clamp(2.4rem,6vw,5rem);font-weight:600;
+  color:var(--text);line-height:1.1;margin-bottom:12px;
+  text-shadow:0 0 60px rgba(61,220,132,0.2);
+  animation:fadeUp 0.8s ease 0.1s both;
+}
+.hero-title span{color:var(--accent);text-shadow:0 0 30px rgba(61,220,132,0.5);}
+.hero-sub{
+  font-size:1.05rem;font-weight:300;color:var(--muted);max-width:560px;
+  line-height:1.8;margin-bottom:36px;
+  animation:fadeUp 0.8s ease 0.2s both;
+}
+.hero-stats{
+  display:flex;gap:40px;justify-content:center;flex-wrap:wrap;
+  margin-bottom:44px;animation:fadeUp 0.8s ease 0.3s both;
+}
+.stat{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.stat-num{font-family:'Cinzel',serif;font-size:2.2rem;font-weight:600;color:var(--accent);line-height:1;}
+.stat-lbl{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);}
+.hero-cta{
+  display:inline-block;
+  background:linear-gradient(135deg,#1a6b35,#2d9a4e);
+  border:1px solid rgba(61,220,132,0.45);border-radius:10px;
+  color:#fff;font-family:'DM Mono',monospace;font-size:0.72rem;
+  letter-spacing:0.16em;text-transform:uppercase;
+  padding:15px 36px;cursor:pointer;text-decoration:none;
+  transition:all 0.3s;box-shadow:0 6px 28px rgba(29,107,53,0.45);
+  animation:fadeUp 0.8s ease 0.4s both;
+  position:relative;overflow:hidden;
+}
+.hero-cta::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,0.08));opacity:0;transition:opacity 0.3s;}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(29,107,53,0.6);}
+.hero-cta:hover::before{opacity:1;}
+
+/* scroll indicator */
+.scroll-hint{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  animation:fadeUp 1s ease 1s both;
+}
+.scroll-hint span{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
+.scroll-arr{width:1px;height:40px;background:linear-gradient(to bottom,var(--muted),transparent);animation:scrollBounce 1.5s ease-in-out infinite;}
+@keyframes scrollBounce{0%,100%{transform:scaleY(1);opacity:0.5;}50%{transform:scaleY(1.3);opacity:1;}}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── SECTION ── */
+.section{padding:80px 24px;}
+.section-head{text-align:center;margin-bottom:56px;}
+.section-badge{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.section-title{font-family:'Cinzel',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:600;color:var(--text);line-height:1.2;}
+.section-title span{color:var(--accent);}
+.section-desc{font-size:0.9rem;color:var(--muted);max-width:520px;margin:14px auto 0;line-height:1.8;}
+
+/* ── AYUSH CARDS ── */
+.cards-wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+
+.acard{
+  background:var(--cardbg);
+  border:1px solid rgba(61,220,132,0.12);
+  border-radius:12px;padding:28px 26px;
+  position:relative;overflow:hidden;
+  transition:all 0.4s cubic-bezier(0.34,1.2,0.64,1);
+  cursor:default;
+}
+.acard::before{
+  content:'';position:absolute;inset:0;border-radius:12px;
+  background:linear-gradient(135deg,var(--card-color-a) 0%,transparent 60%);
+  opacity:0;transition:opacity 0.4s;
+}
+.acard:hover{transform:translateY(-6px);border-color:var(--card-color);box-shadow:0 20px 50px rgba(0,0,0,0.5),0 0 0 1px var(--card-color),0 0 40px var(--card-glow);}
+.acard:hover::before{opacity:1;}
+
+.acard-letter{
+  font-family:'Cinzel',serif;font-size:3.8rem;font-weight:600;
+  line-height:1;margin-bottom:6px;color:var(--card-color);
+  text-shadow:0 0 30px var(--card-glow);
+  position:relative;z-index:1;
+}
+.acard-name{font-family:'Cinzel',serif;font-size:1.15rem;font-weight:400;color:var(--text);margin-bottom:4px;position:relative;z-index:1;}
+.acard-full{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;color:var(--muted);margin-bottom:14px;position:relative;z-index:1;}
+.acard-desc{font-size:0.84rem;color:rgba(212,240,216,0.75);line-height:1.7;position:relative;z-index:1;}
+.acard-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;position:relative;z-index:1;}
+.atag{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;padding:3px 9px;border-radius:20px;background:rgba(61,220,132,0.08);border:1px solid rgba(61,220,132,0.18);color:var(--muted);}
+.acard-count{
+  position:absolute;top:20px;right:22px;
+  font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;
+  color:var(--card-color);opacity:0.5;
+  z-index:1;
+}
+
+/* bg letter watermark */
+.acard-bg-letter{
+  position:absolute;right:-10px;bottom:-20px;
+  font-family:'Cinzel',serif;font-size:8rem;font-weight:600;
+  color:var(--card-color);opacity:0.04;line-height:1;
+  pointer-events:none;z-index:0;user-select:none;
+}
+
+/* ── WHAT IS AYUSH ── */
+.ayush-intro{max-width:860px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.ayush-text h3{font-family:'Cinzel',serif;font-size:1.5rem;color:var(--text);margin-bottom:16px;}
+.ayush-text p{font-size:0.88rem;color:var(--muted);line-height:1.9;margin-bottom:14px;}
+.ayush-text p strong{color:var(--accent);}
+.ayush-visual{display:flex;align-items:center;justify-content:center;}
+
+/* ── TIMELINE ── */
+.timeline{max-width:700px;margin:0 auto;position:relative;}
+.timeline::before{content:'';position:absolute;left:24px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,rgba(61,220,132,0.3),transparent);}
+.titem{display:flex;gap:24px;margin-bottom:36px;align-items:flex-start;opacity:0;transform:translateX(-20px);transition:all 0.6s ease;}
+.titem.vis{opacity:1;transform:translateX(0);}
+.tdot{width:48px;height:48px;border-radius:50%;background:rgba(61,220,132,0.1);border:1px solid rgba(61,220,132,0.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Cinzel',serif;font-size:1.1rem;color:var(--accent);}
+.tyear{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;color:var(--accent);margin-bottom:4px;}
+.ttitle{font-family:'Cinzel',serif;font-size:1rem;color:var(--text);margin-bottom:6px;}
+.tdesc{font-size:0.82rem;color:var(--muted);line-height:1.7;}
+
+/* ── BENEFITS ── */
+.benefits{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+.bcard{
+  background:var(--cardbg);border:1px solid rgba(61,220,132,0.1);border-radius:10px;
+  padding:22px 20px;text-align:center;
+  transition:all 0.3s;opacity:0;transform:translateY(20px);
+}
+.bcard.vis{opacity:1;transform:translateY(0);}
+.bcard:hover{border-color:rgba(61,220,132,0.3);transform:translateY(-4px);}
+.bcard-icon{width:48px;height:48px;margin:0 auto 14px;opacity:0.85;}
+.bcard-title{font-family:'Cinzel',serif;font-size:0.95rem;color:var(--text);margin-bottom:8px;}
+.bcard-text{font-size:0.78rem;color:var(--muted);line-height:1.7;}
+
+/* ── CTA SECTION ── */
+.cta-sec{
+  text-align:center;padding:80px 24px 100px;
+  background:linear-gradient(to bottom,transparent,rgba(13,36,16,0.5),transparent);
+}
+.cta-title{font-family:'Cinzel',serif;font-size:clamp(1.8rem,4vw,3.2rem);font-weight:600;color:var(--text);margin-bottom:16px;}
+.cta-title span{color:var(--accent);}
+.cta-sub{font-size:0.9rem;color:var(--muted);margin-bottom:36px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.8;}
+.cta-btn{
+  display:inline-block;
+  background:linear-gradient(135deg,#1a6b35,#2d9a4e);
+  border:1px solid rgba(61,220,132,0.45);border-radius:10px;
+  color:#fff;font-family:'DM Mono',monospace;font-size:0.75rem;
+  letter-spacing:0.16em;text-transform:uppercase;
+  padding:16px 44px;cursor:pointer;text-decoration:none;
+  transition:all 0.3s;box-shadow:0 6px 28px rgba(29,107,53,0.45);
+}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(29,107,53,0.6);}
+
+@media(max-width:700px){
+  .ayush-intro{grid-template-columns:1fr;}
+  .ayush-visual{display:none;}
+  .hero-stats{gap:24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- BG -->
+<div id="bg">
+  <div class="aurora" style="width:700px;height:600px;top:-200px;left:-200px;background:radial-gradient(circle,rgba(20,90,35,0.4),transparent 70%);--dur:14s;--tx:100px;--ty:80px;--sc:1.2;"></div>
+  <div class="aurora" style="width:600px;height:700px;bottom:-200px;right:-150px;background:radial-gradient(circle,rgba(15,70,30,0.35),transparent 70%);--dur:18s;--tx:-80px;--ty:-60px;--sc:1.15;"></div>
+  <div class="aurora" style="width:500px;height:500px;top:40%;left:40%;background:radial-gradient(circle,rgba(40,110,55,0.18),transparent 70%);--dur:22s;--tx:80px;--ty:-100px;--sc:0.8;"></div>
+  <div class="grid"></div>
+  <canvas id="canvas"></canvas>
+  <div id="flies"></div>
+  <div id="leaves"></div>
+  <div class="scan"></div>
+  <div class="vignette"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AYUSH <span>Herbal</span> Garden</div>
+  <div class="nav-user">Welcome, <span id="uname">Guest</span></div>
+  <a class="btn-enter" href="select.html">Enter Garden &rarr;</a>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">Ministry of AYUSH · Smart India Hackathon 2024</div>
+    <h1 class="hero-title">Ancient Wisdom,<br><span>Digital Experience</span></h1>
+    <p class="hero-sub">Explore 5,000 years of India's traditional healing knowledge through an immersive virtual herbal garden — where every plant tells a story.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">500+</div><div class="stat-lbl">Medicinal Plants</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-lbl">Healing Systems</div></div>
+      <div class="stat"><div class="stat-num">5000+</div><div class="stat-lbl">Years of Knowledge</div></div>
+      <div class="stat"><div class="stat-num">3D</div><div class="stat-lbl">Interactive Garden</div></div>
+    </div>
+    <a class="hero-cta" href="select.html">Explore the Gardens &rarr;</a>
+    <div class="scroll-hint"><span>Scroll to learn</span><div class="scroll-arr"></div></div>
+  </section>
+
+  <!-- WHAT IS AYUSH -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-badge">About</div>
+      <h2 class="section-title">What is <span>AYUSH</span>?</h2>
+    </div>
+    <div class="ayush-intro">
+      <div class="ayush-text">
+        <h3>India's Ancient Healing Heritage</h3>
+        <p><strong>AYUSH</strong> is an acronym for India's six traditional health systems — Ayurveda, Yoga & Naturopathy, Unani, Siddha, and Homeopathy. These systems have been practised for thousands of years and form the backbone of healthcare for millions.</p>
+        <p>The Ministry of AYUSH was established in 2014 to promote, develop, and propagate these indigenous and alternative medicine systems across India and the world.</p>
+        <p>This <strong>Virtual Herbal Garden</strong> bridges the gap between ancient botanical knowledge and modern digital access — letting anyone explore, learn, and understand medicinal plants from home.</p>
+      </div>
+      <div class="ayush-visual">
+        <svg width="260" height="260" viewBox="0 0 260 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer rings -->
+          <circle cx="130" cy="130" r="120" stroke="rgba(61,220,132,0.12)" stroke-width="1" stroke-dasharray="5 4"/>
+          <circle cx="130" cy="130" r="100" stroke="rgba(61,220,132,0.1)" stroke-width="0.7"/>
+          <circle cx="130" cy="130" r="80" stroke="rgba(61,220,132,0.08)" stroke-width="0.5"/>
+          <!-- Center leaf cluster -->
+          <path d="M130 160 Q100 140 105 115 Q112 88 130 100 Q148 88 155 115 Q160 140 130 160Z" fill="rgba(45,106,53,0.7)" stroke="rgba(61,220,132,0.5)" stroke-width="1"/>
+          <path d="M130 160 Q105 145 110 120" stroke="rgba(61,220,132,0.4)" stroke-width="0.8" stroke-linecap="round"/>
+          <path d="M130 160 Q155 145 150 120" stroke="rgba(61,220,132,0.4)" stroke-width="0.8" stroke-linecap="round"/>
+          <path d="M130 160 Q130 145 130 100" stroke="rgba(61,220,132,0.5)" stroke-width="1" stroke-linecap="round"/>
+          <!-- 5 orbiting dots for 5 systems -->
+          <circle cx="130" cy="30" r="8" fill="rgba(61,220,132,0.2)" stroke="rgba(61,220,132,0.6)" stroke-width="1"/>
+          <text x="130" y="34" text-anchor="middle" font-family="Cinzel,serif" font-size="7" fill="rgba(61,220,132,0.9)">A</text>
+          <circle cx="224" cy="85" r="8" fill="rgba(200,216,74,0.2)" stroke="rgba(200,216,74,0.6)" stroke-width="1"/>
+          <text x="224" y="89" text-anchor="middle" font-family="Cinzel,serif" font-size="7" fill="rgba(200,216,74,0.9)">Y</text>
+          <circle cx="196" cy="200" r="8" fill="rgba(61,220,132,0.2)" stroke="rgba(61,220,132,0.6)" stroke-width="1"/>
+          <text x="196" y="204" text-anchor="middle" font-family="Cinzel,serif" font-size="7" fill="rgba(61,220,132,0.9)">U</text>
+          <circle cx="64" cy="200" r="8" fill="rgba(200,216,74,0.2)" stroke="rgba(200,216,74,0.6)" stroke-width="1"/>
+          <text x="64" y="204" text-anchor="middle" font-family="Cinzel,serif" font-size="7" fill="rgba(200,216,74,0.9)">S</text>
+          <circle cx="36" cy="85" r="8" fill="rgba(61,220,132,0.2)" stroke="rgba(61,220,132,0.6)" stroke-width="1"/>
+          <text x="36" y="89" text-anchor="middle" font-family="Cinzel,serif" font-size="7" fill="rgba(61,220,132,0.9)">H</text>
+          <!-- Lines from center to dots -->
+          <line x1="130" y1="105" x2="130" y2="38" stroke="rgba(61,220,132,0.2)" stroke-width="0.5" stroke-dasharray="3 3"/>
+          <line x1="138" y1="108" x2="216" y2="90" stroke="rgba(61,220,132,0.2)" stroke-width="0.5" stroke-dasharray="3 3"/>
+          <line x1="137" y1="118" x2="192" y2="192" stroke="rgba(61,220,132,0.2)" stroke-width="0.5" stroke-dasharray="3 3"/>
+          <line x1="122" y1="118" x2="68" y2="192" stroke="rgba(61,220,132,0.2)" stroke-width="0.5" stroke-dasharray="3 3"/>
+          <line x1="122" y1="108" x2="44" y2="90" stroke="rgba(61,220,132,0.2)" stroke-width="0.5" stroke-dasharray="3 3"/>
+          <!-- Glow center -->
+          <circle cx="130" cy="130" r="6" fill="rgba(61,220,132,0.8)"/>
+          <circle cx="130" cy="130" r="12" fill="none" stroke="rgba(61,220,132,0.3)" stroke-width="1"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 AYUSH SYSTEMS -->
+  <section class="section" style="padding-top:0;">
+    <div class="section-head">
+      <div class="section-badge">The Five Systems</div>
+      <h2 class="section-title">Five Paths to <span>Healing</span></h2>
+      <p class="section-desc">Each system has a unique philosophy, history, and approach to health. Click any system to explore its garden.</p>
+    </div>
+    <div class="cards-wrap">
+
+      <div class="acard reveal-card" style="--card-color:rgba(61,220,132,0.8);--card-color-a:rgba(61,220,132,0.06);--card-glow:rgba(61,220,132,0.15);">
+        <div class="acard-count">230+ plants</div>
+        <div class="acard-bg-letter">A</div>
+        <div class="acard-letter">A</div>
+        <div class="acard-name">Ayurveda</div>
+        <div class="acard-full">Science of Life · 5,000+ years old</div>
+        <div class="acard-desc">The oldest healing tradition on earth. Ayurveda balances the three doshas — Vata, Pitta, and Kapha — through herbs, diet, and lifestyle to create harmony between body, mind, and spirit.</div>
+        <div class="acard-tags"><span class="atag">Tridosha</span><span class="atag">Panchakarma</span><span class="atag">Rasayana</span><span class="atag">Herbs</span></div>
+      </div>
+
+      <div class="acard reveal-card" style="--card-color:rgba(200,216,74,0.9);--card-color-a:rgba(200,216,74,0.06);--card-glow:rgba(200,216,74,0.15);">
+        <div class="acard-count">85+ plants</div>
+        <div class="acard-bg-letter">Y</div>
+        <div class="acard-letter" style="color:rgba(200,216,74,0.9);">Y</div>
+        <div class="acard-name">Yoga & Naturopathy</div>
+        <div class="acard-full">Natural living · Body-mind wellness</div>
+        <div class="acard-desc">Naturopathy believes in the healing power of nature. Combined with Yoga's breath and movement practices, it offers a holistic approach using herbs, sunlight, water, and wholesome diet.</div>
+        <div class="acard-tags"><span class="atag">Pranayama</span><span class="atag">Detox</span><span class="atag">Fasting</span><span class="atag">Hydrotherapy</span></div>
+      </div>
+
+      <div class="acard reveal-card" style="--card-color:rgba(80,180,220,0.8);--card-color-a:rgba(80,180,220,0.05);--card-glow:rgba(80,180,220,0.12);">
+        <div class="acard-count">120+ plants</div>
+        <div class="acard-bg-letter">U</div>
+        <div class="acard-letter" style="color:rgba(80,180,220,0.85);">U</div>
+        <div class="acard-name">Unani</div>
+        <div class="acard-full">Greco-Arabic medicine · 2,500+ years</div>
+        <div class="acard-desc">Rooted in the teachings of Hippocrates and Galen, Unani medicine reached India through the Mughal era. It focuses on four humors — blood, phlegm, yellow bile, and black bile — for healing.</div>
+        <div class="acard-tags"><span class="atag">Four Humors</span><span class="atag">Mizaj</span><span class="atag">Ilaj</span><span class="atag">Herbal</span></div>
+      </div>
+
+      <div class="acard reveal-card" style="--card-color:rgba(220,100,180,0.8);--card-color-a:rgba(220,100,180,0.05);--card-glow:rgba(220,100,180,0.12);">
+        <div class="acard-count">95+ plants</div>
+        <div class="acard-bg-letter">S</div>
+        <div class="acard-letter" style="color:rgba(220,100,180,0.85);">S</div>
+        <div class="acard-name">Siddha</div>
+        <div class="acard-full">Tamil tradition · World's oldest system</div>
+        <div class="acard-desc">Developed by the 18 Siddhars of Tamil Nadu, Siddha is one of the oldest medical systems in the world. It uses minerals, metals, and herbs to treat disease at the root cause level.</div>
+        <div class="acard-tags"><span class="atag">Siddhars</span><span class="atag">Muppu</span><span class="atag">Kayakalpa</span><span class="atag">Tamil</span></div>
+      </div>
+
+      <div class="acard reveal-card" style="--card-color:rgba(200,160,80,0.85);--card-color-a:rgba(200,160,80,0.05);--card-glow:rgba(200,160,80,0.12);">
+        <div class="acard-count">110+ plants</div>
+        <div class="acard-bg-letter">H</div>
+        <div class="acard-letter" style="color:rgba(200,160,80,0.9);">H</div>
+        <div class="acard-name">Homeopathy</div>
+        <div class="acard-full">Like cures like · Founded 1796</div>
+        <div class="acard-desc">Based on the principle of "similia similibus curantur" — like cures like. Highly diluted natural substances stimulate the body's own healing mechanism. Used by 200 million people worldwide.</div>
+        <div class="acard-tags"><span class="atag">Potentization</span><span class="atag">Miasm</span><span class="atag">Constitutional</span><span class="atag">Dilution</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="section" style="padding-top:0;">
+    <div class="section-head">
+      <div class="section-badge">History</div>
+      <h2 class="section-title">A Legacy of <span>Healing</span></h2>
+    </div>
+    <div class="timeline">
+      <div class="titem"><div class="tdot">A</div><div class="tcontent"><div class="tyear">3000 BCE</div><div class="ttitle">Ayurveda Emerges</div><div class="tdesc">The Charaka Samhita and Sushruta Samhita codify 700+ herbs and surgical techniques — foundational texts of world medicine.</div></div></div>
+      <div class="titem"><div class="tdot">S</div><div class="tcontent"><div class="tyear">3000 BCE</div><div class="ttitle">Siddha Tradition</div><div class="tdesc">The 18 Siddhars of Tamil Nadu develop one of the world's oldest medical systems, using herbs, minerals, and spiritual practices.</div></div></div>
+      <div class="titem"><div class="tdot">U</div><div class="tcontent"><div class="tyear">400 BCE</div><div class="ttitle">Unani Arrives in India</div><div class="tdesc">Greek medicine travels via Persia and the Arab world, blending with Indian traditions during the Mughal period to form Unani.</div></div></div>
+      <div class="titem"><div class="tdot">Y</div><div class="tcontent"><div class="tyear">200 BCE</div><div class="ttitle">Yoga Sutras Compiled</div><div class="tdesc">Patanjali's Yoga Sutras systematize yoga practice. Naturopathy roots grow from nature-cure traditions across cultures.</div></div></div>
+      <div class="titem"><div class="tdot">H</div><div class="tcontent"><div class="tyear">1796 CE</div><div class="ttitle">Homeopathy Founded</div><div class="tdesc">Samuel Hahnemann founds homeopathy in Germany. It reaches India in 1839 and grows to become the world's largest homeopathy practice.</div></div></div>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section class="section" style="padding-top:0;">
+    <div class="section-head">
+      <div class="section-badge">Why Explore</div>
+      <h2 class="section-title">Why This <span>Garden</span>?</h2>
+    </div>
+    <div class="benefits">
+      <div class="bcard reveal-b">
+        <svg class="bcard-icon" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="rgba(61,220,132,0.5)" stroke-width="1.5"/><path d="M24 14 Q18 20 18 26 Q18 32 24 34 Q30 32 30 26 Q30 20 24 14Z" fill="rgba(45,106,53,0.8)" stroke="rgba(61,220,132,0.5)" stroke-width="1"/><path d="M24 34 Q24 26 24 14" stroke="rgba(61,220,132,0.5)" stroke-width="0.8" stroke-linecap="round"/></svg>
+        <div class="bcard-title">500+ Plants</div>
+        <div class="bcard-text">Explore a comprehensive library of medicinal plants across all 5 AYUSH systems with detailed botanical profiles.</div>
+      </div>
+      <div class="bcard reveal-b" style="transition-delay:0.1s;">
+        <svg class="bcard-icon" viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="32" rx="6" stroke="rgba(61,220,132,0.5)" stroke-width="1.5"/><circle cx="24" cy="24" r="8" stroke="rgba(61,220,132,0.5)" stroke-width="1.5"/><circle cx="24" cy="24" r="3" fill="rgba(61,220,132,0.7)"/></svg>
+        <div class="bcard-title">3D Interactive</div>
+        <div class="bcard-text">Rotate, zoom, and explore realistic 3D plant models. Experience plants as if you were walking through the garden.</div>
+      </div>
+      <div class="bcard reveal-b" style="transition-delay:0.2s;">
+        <svg class="bcard-icon" viewBox="0 0 48 48" fill="none"><path d="M8 38 L18 28 L26 34 L34 20 L40 26" stroke="rgba(61,220,132,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="14" r="6" stroke="rgba(61,220,132,0.5)" stroke-width="1.5"/><path d="M18 10 L22 14 L18 18 L14 14Z" fill="rgba(61,220,132,0.4)"/></svg>
+        <div class="bcard-title">Learn & Quiz</div>
+        <div class="bcard-text">Test your knowledge with garden-specific quizzes. Track your score on the leaderboard and compete with others.</div>
+      </div>
+      <div class="bcard reveal-b" style="transition-delay:0.3s;">
+        <svg class="bcard-icon" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="rgba(61,220,132,0.5)" stroke-width="1.5"/><path d="M16 24 L22 30 L32 18" stroke="rgba(61,220,132,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="bcard-title">Expert Curated</div>
+        <div class="bcard-text">All plant data is curated and verified by AYUSH experts. Comprehensive information you can trust for learning.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-sec">
+    <h2 class="cta-title">Ready to <span>Explore</span>?</h2>
+    <p class="cta-sub">Choose your garden and begin your journey through 5,000 years of botanical healing wisdom.</p>
+    <a class="cta-btn" href="select.html">Choose Your Garden &rarr;</a>
+  </section>
+
+</div><!-- /page -->
+
+<script>
+/* USER NAME */
+(function(){
+  const u=localStorage.getItem('ayush_user');
+  if(u){const p=JSON.parse(u);document.getElementById('uname').textContent=p.name||'Guest';}
+})();
+
+/* BG CANVAS */
+const cv=document.getElementById('canvas'),ctx=cv.getContext('2d');
+let W,H,pts=[];
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+resize();window.addEventListener('resize',()=>{resize();initPts();});
+function initPts(){pts=[];const N=Math.floor((W*H)/20000);for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,r:Math.random()*1.8+0.4,a:Math.random()*0.45+0.08,hue:Math.random()*40+100});}
+initPts();
+function drawPts(){ctx.clearRect(0,0,W,H);for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.strokeStyle=`rgba(61,220,132,${0.05*(1-d/120)})`;ctx.lineWidth=0.4;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}}}for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`hsla(${p.hue},60%,65%,${p.a})`;ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;}requestAnimationFrame(drawPts);}
+drawPts();
+
+/* FIREFLIES */
+const fc=document.getElementById('flies');
+for(let i=0;i<22;i++){const f=document.createElement('div');f.className='firefly';const s=Math.random()*2+1.5;f.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${s}px;height:${s}px;--x:${(Math.random()-0.5)*180}px;--y:${(Math.random()-0.5)*180}px;--d:${Math.random()*6+5}s;--dl:-${Math.random()*8}s;`;fc.appendChild(f);}
+
+/* LEAVES */
+const lc=document.getElementById('leaves');
+const svgs=[`<svg width="16" height="22" viewBox="0 0 16 22" fill="none"><path d="M8 21 Q0 14 2 7 Q5 0 8 3 Q11 0 14 7 Q16 14 8 21Z" fill="rgba(45,106,53,0.55)" stroke="rgba(61,220,132,0.3)" stroke-width="0.5"/><path d="M8 21 Q8 12 8 3" stroke="rgba(61,220,132,0.25)" stroke-width="0.5"/></svg>`,`<svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M1 6 Q5 0 10 2 Q15 0 19 6 Q15 12 10 10 Q5 12 1 6Z" fill="rgba(74,153,85,0.5)" stroke="rgba(106,191,114,0.3)" stroke-width="0.5"/></svg>`];
+for(let i=0;i<16;i++){const l=document.createElement('div');l.className='leaf';l.innerHTML=svgs[i%svgs.length];l.style.cssText=`left:${Math.random()*100}%;top:-5%;--ld:${Math.random()*12+10}s;--ldl:-${Math.random()*14}s;--lx:${(Math.random()-0.5)*160}px;transform:rotate(${Math.random()*360}deg);`;lc.appendChild(l);}
+
+/* SCROLL REVEAL */
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');}});},{threshold:0.12});
+document.querySelectorAll('.titem,.bcard').forEach(el=>obs.observe(el));
+
+/* CARD REVEAL (stagger) */
+const cardObs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){e.target.style.transitionDelay=`${i*0.08}s`;e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:0.1});
+document.querySelectorAll('.reveal-card').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(28px)';el.style.transition='all 0.7s cubic-bezier(0.34,1.2,0.64,1)';cardObs.observe(el);});
+document.querySelectorAll('.reveal-b').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

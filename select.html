@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AYUSH Herbal Garden — Select Garden</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --g1:#030a04;--g2:#071408;--g3:#0d2410;
+  --accent:#3ddc84;--accent2:#56f09a;
+  --text:#d4f0d8;--muted:#6a9a70;
+  --border:rgba(61,220,132,0.18);
+  --cardbg:rgba(8,22,10,0.72);
+}
+html,body{width:100%;min-height:100%;font-family:'Raleway',sans-serif;background:var(--g1);color:var(--text);overflow-x:hidden;}
+
+/* ── FIXED BG ── */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:radial-gradient(ellipse 120% 100% at 50% 110%,#0d3318 0%,#071408 50%,#030a04 100%);}
+.aurora{position:absolute;border-radius:50%;filter:blur(90px);animation:am var(--dur) ease-in-out infinite alternate;pointer-events:none;}
+@keyframes am{0%{transform:translate(0,0) scale(1);}100%{transform:translate(var(--tx),var(--ty)) scale(var(--sc));}}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(61,220,132,0.032) 1px,transparent 1px),linear-gradient(90deg,rgba(61,220,132,0.032) 1px,transparent 1px);background-size:60px 60px;animation:gp 10s ease-in-out infinite;}
+@keyframes gp{0%,100%{opacity:0.4;}50%{opacity:0.85;}}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse 85% 85% at 50% 50%,transparent 40%,rgba(0,0,0,0.68) 100%);}
+#canvas{position:absolute;inset:0;pointer-events:none;}
+.firefly{position:absolute;border-radius:50%;background:var(--accent);box-shadow:0 0 6px 2px rgba(61,220,132,0.8);animation:ff var(--d) ease-in-out infinite var(--dl);pointer-events:none;}
+@keyframes ff{0%{transform:translate(0,0);opacity:0;}20%{opacity:1;}50%{transform:translate(var(--x),var(--y));opacity:0.7;}100%{transform:translate(calc(var(--x)*0.4),calc(var(--y)*1.6));opacity:0;}}
+.leaf-bg{position:absolute;pointer-events:none;animation:lf var(--ld) linear infinite var(--ldl);opacity:0;}
+@keyframes lf{0%{transform:translateY(-60px) rotate(0deg) translateX(0);opacity:0;}10%{opacity:0.55;}90%{opacity:0.25;}100%{transform:translateY(110vh) rotate(540deg) translateX(var(--lx));opacity:0;}}
+.scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(61,220,132,0.1),transparent);animation:sc 9s linear infinite;}
+@keyframes sc{from{top:-2px;}to{top:100vh;}}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:13px 32px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(3,10,4,0.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(61,220,132,0.1);}
+.nav-logo{font-family:'Cinzel',serif;font-size:1.05rem;font-weight:600;color:var(--text);letter-spacing:0.06em;text-decoration:none;}
+.nav-logo span{color:var(--accent);}
+.nav-right{display:flex;align-items:center;gap:16px;}
+.nav-user{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;color:var(--muted);}
+.nav-user span{color:var(--accent);}
+.btn-back{
+  background:transparent;border:1px solid rgba(61,220,132,0.25);border-radius:7px;
+  color:var(--muted);font-family:'DM Mono',monospace;font-size:0.62rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:7px 14px;cursor:pointer;transition:all 0.25s;text-decoration:none;display:inline-block;
+}
+.btn-back:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── PAGE ── */
+.page{position:relative;z-index:10;padding:100px 24px 60px;min-height:100vh;}
+
+/* ── HEADER ── */
+.hd{text-align:center;margin-bottom:60px;}
+.hd-badge{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(61,220,132,0.28);border-radius:20px;padding:5px 16px;margin-bottom:20px;display:inline-block;background:rgba(61,220,132,0.05);animation:fu 0.8s ease both;}
+.hd-title{font-family:'Cinzel',serif;font-size:clamp(2rem,5vw,3.8rem);font-weight:600;color:var(--text);line-height:1.15;margin-bottom:14px;text-shadow:0 0 50px rgba(61,220,132,0.18);animation:fu 0.8s ease 0.1s both;}
+.hd-title span{color:var(--accent);text-shadow:0 0 25px rgba(61,220,132,0.45);}
+.hd-sub{font-size:0.92rem;font-weight:300;color:var(--muted);max-width:500px;margin:0 auto;line-height:1.8;animation:fu 0.8s ease 0.2s both;}
+@keyframes fu{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── GARDENS GRID ── */
+.gardens{
+  max-width:1200px;margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:22px;
+}
+
+/* ── GARDEN CARD ── */
+.gcard{
+  background:var(--cardbg);
+  border:1px solid rgba(61,220,132,0.1);
+  border-radius:14px;
+  padding:0;
+  overflow:hidden;
+  cursor:pointer;
+  position:relative;
+  transition:all 0.45s cubic-bezier(0.34,1.2,0.64,1);
+  opacity:0;transform:translateY(32px);
+  text-decoration:none;display:block;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.gcard.vis{opacity:1;transform:translateY(0);}
+.gcard:hover{
+  transform:translateY(-8px) scale(1.02);
+  border-color:var(--gc);
+  box-shadow:0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px var(--gc), 0 0 50px var(--gg);
+}
+
+/* card glow sweep on hover */
+.gcard::after{
+  content:'';position:absolute;inset:0;border-radius:14px;
+  background:linear-gradient(135deg,var(--gc-a) 0%,transparent 55%);
+  opacity:0;transition:opacity 0.4s;pointer-events:none;
+}
+.gcard:hover::after{opacity:1;}
+
+/* ── CARD TOP BANNER ── */
+.gcard-top{
+  height:160px;
+  position:relative;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.gcard-top-bg{
+  position:absolute;inset:0;
+  background:var(--gc-bg);
+  transition:transform 0.5s ease;
+}
+.gcard:hover .gcard-top-bg{transform:scale(1.06);}
+
+/* isometric garden preview */
+.garden-preview{
+  position:relative;z-index:2;
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* floating plants in preview */
+.prev-plant{
+  position:absolute;
+  animation:prevFloat var(--pf) ease-in-out infinite var(--pfd) alternate;
+}
+@keyframes prevFloat{from{transform:translateY(0);}to{transform:translateY(-6px);}}
+
+.gcard-letter{
+  position:absolute;right:16px;top:12px;z-index:3;
+  font-family:'Cinzel',serif;font-size:3.5rem;font-weight:600;
+  color:var(--gc);opacity:0.18;line-height:1;
+  transition:opacity 0.3s;
+}
+.gcard:hover .gcard-letter{opacity:0.35;}
+
+.gcard-badge{
+  position:absolute;top:12px;left:12px;z-index:3;
+  font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--gc);background:rgba(0,0,0,0.5);
+  border:1px solid var(--gc);border-radius:20px;
+  padding:3px 9px;backdrop-filter:blur(4px);
+}
+
+/* ── CARD BODY ── */
+.gcard-body{padding:20px 22px 22px;}
+.gcard-name{font-family:'Cinzel',serif;font-size:1.25rem;font-weight:600;color:var(--text);margin-bottom:4px;}
+.gcard-tagline{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gc);margin-bottom:12px;opacity:0.8;}
+.gcard-desc{font-size:0.8rem;color:var(--muted);line-height:1.7;margin-bottom:16px;}
+.gcard-footer{display:flex;align-items:center;justify-content:space-between;}
+.gcard-plants{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;color:var(--muted);}
+.gcard-plants span{color:var(--gc);}
+.gcard-enter{
+  font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--gc);display:flex;align-items:center;gap:6px;
+  transition:gap 0.25s;
+}
+.gcard:hover .gcard-enter{gap:10px;}
+.gcard-arrow{font-size:0.85rem;transition:transform 0.25s;}
+.gcard:hover .gcard-arrow{transform:translateX(4px);}
+
+/* tags */
+.gcard-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
+.gtag{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.07em;padding:2px 8px;border-radius:20px;background:rgba(61,220,132,0.07);border:1px solid rgba(61,220,132,0.15);color:var(--muted);}
+
+/* ── 5th card spans full width on last row ── */
+@media(min-width:900px){
+  .gcard:nth-child(4){grid-column:1/2;}
+  .gcard:nth-child(5){grid-column:2/4;}
+}
+
+/* ── INFO STRIP ── */
+.info-strip{
+  max-width:1200px;margin:48px auto 0;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+}
+.icard{
+  background:var(--cardbg);border:1px solid rgba(61,220,132,0.1);border-radius:10px;
+  padding:18px 20px;text-align:center;
+  opacity:0;transform:translateY(16px);transition:all 0.6s ease;
+}
+.icard.vis{opacity:1;transform:translateY(0);}
+.icard-num{font-family:'Cinzel',serif;font-size:1.8rem;font-weight:600;color:var(--accent);line-height:1;margin-bottom:4px;}
+.icard-lbl{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+
+@media(max-width:900px){
+  .gardens{grid-template-columns:1fr 1fr;}
+  .gcard:nth-child(4),.gcard:nth-child(5){grid-column:auto;}
+  .info-strip{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:580px){
+  .gardens{grid-template-columns:1fr;}
+  .gcard:nth-child(n){grid-column:auto;}
+  .info-strip{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="bg">
+  <div class="aurora" style="width:700px;height:600px;top:-200px;left:-200px;background:radial-gradient(circle,rgba(20,90,35,0.4),transparent 70%);--dur:14s;--tx:100px;--ty:80px;--sc:1.2;"></div>
+  <div class="aurora" style="width:600px;height:700px;bottom:-200px;right:-150px;background:radial-gradient(circle,rgba(15,70,30,0.35),transparent 70%);--dur:18s;--tx:-80px;--ty:-60px;--sc:1.15;"></div>
+  <div class="aurora" style="width:500px;height:500px;top:35%;left:38%;background:radial-gradient(circle,rgba(40,110,55,0.18),transparent 70%);--dur:22s;--tx:80px;--ty:-100px;--sc:0.8;"></div>
+  <div class="grid"></div>
+  <canvas id="canvas"></canvas>
+  <div id="flies"></div>
+  <div id="leaves"></div>
+  <div class="scan"></div>
+  <div class="vignette"></div>
+</div>
+
+<nav>
+  <a class="nav-logo" href="intro.html">AYUSH <span>Herbal</span> Garden</a>
+  <div class="nav-right">
+    <div class="nav-user">Hello, <span id="uname">Guest</span></div>
+    <a class="btn-back" href="intro.html">&#8592; Back</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="hd">
+    <div class="hd-badge">Choose Your Journey</div>
+    <h1 class="hd-title">Select a <span>Garden</span></h1>
+    <p class="hd-sub">Each garden holds the secrets of a different healing tradition. Step inside and discover the plants that shaped civilisations.</p>
+  </div>
+
+  <!-- GARDEN CARDS -->
+  <div class="gardens" id="gardens">
+
+    <!-- AYURVEDA -->
+    <a class="gcard" href="garden.html?g=A"
+       style="--gc:rgba(61,220,132,0.85);--gg:rgba(61,220,132,0.12);--gc-a:rgba(61,220,132,0.06);--gc-bg:linear-gradient(135deg,rgba(20,80,35,0.9),rgba(8,30,12,0.95));">
+      <div class="gcard-top">
+        <div class="gcard-top-bg"></div>
+        <div class="garden-preview">
+          <svg width="100%" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;">
+            <!-- isometric ground -->
+            <path d="M0 100 L160 60 L320 100 L320 160 L0 160Z" fill="rgba(20,60,25,0.8)"/>
+            <path d="M0 100 L160 60 L320 100" stroke="rgba(61,220,132,0.2)" stroke-width="1"/>
+            <!-- grid lines -->
+            <line x1="80" y1="80" x2="80" y2="160" stroke="rgba(61,220,132,0.06)" stroke-width="0.5"/>
+            <line x1="160" y1="60" x2="160" y2="160" stroke="rgba(61,220,132,0.06)" stroke-width="0.5"/>
+            <line x1="240" y1="80" x2="240" y2="160" stroke="rgba(61,220,132,0.06)" stroke-width="0.5"/>
+            <!-- path -->
+            <path d="M120 160 L160 120 L200 160" fill="rgba(180,160,100,0.3)" stroke="rgba(180,160,100,0.4)" stroke-width="0.5"/>
+            <!-- plants -->
+            <g class="prev-plant" style="left:18%;top:20%;--pf:3.2s;--pfd:0s;">
+              <path d="M55 130 Q52 110 55 95 Q56 80 55 65" stroke="rgba(50,120,60,0.9)" stroke-width="2" stroke-linecap="round" transform="translate(50,0)"/>
+              <path d="M105 95 Q90 82 78 76" stroke="rgba(50,120,60,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M105 85 Q120 72 130 66" stroke="rgba(50,120,60,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M78 76 Q62 60 68 48 Q82 62 86 72Z" fill="rgba(61,200,80,0.85)"/>
+              <path d="M130 66 Q146 50 140 38 Q126 52 122 62Z" fill="rgba(61,200,80,0.85)"/>
+              <circle cx="105" cy="60" r="4" fill="rgba(200,220,60,0.9)"/>
+            </g>
+            <g class="prev-plant" style="--pf:4s;--pfd:1s;">
+              <path d="M200 135 Q198 118 200 105" stroke="rgba(40,100,50,0.85)" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M200 118 Q188 108 180 102" stroke="rgba(40,100,50,0.7)" stroke-width="1.3" stroke-linecap="round"/>
+              <path d="M180 102 Q168 90 173 82 Q184 92 186 99Z" fill="rgba(50,180,70,0.8)"/>
+              <path d="M200 112 Q212 102 220 96" stroke="rgba(40,100,50,0.7)" stroke-width="1.3" stroke-linecap="round"/>
+              <path d="M220 96 Q232 84 228 76 Q216 86 214 93Z" fill="rgba(50,180,70,0.8)"/>
+              <circle cx="200" cy="100" r="3" fill="rgba(61,220,132,0.9)"/>
+            </g>
+            <g class="prev-plant" style="--pf:5s;--pfd:2s;">
+              <path d="M265 140 Q263 125 265 112 Q267 98 265 84" stroke="rgba(45,110,55,0.85)" stroke-width="2" stroke-linecap="round"/>
+              <ellipse cx="265" cy="78" rx="16" ry="18" fill="rgba(40,150,55,0.6)"/>
+              <ellipse cx="258" cy="70" rx="12" ry="14" fill="rgba(50,170,65,0.75)"/>
+              <ellipse cx="272" cy="68" rx="11" ry="12" fill="rgba(50,170,65,0.75)"/>
+              <ellipse cx="265" cy="62" rx="10" ry="12" fill="rgba(61,200,80,0.9)"/>
+            </g>
+            <!-- ground details: pebbles -->
+            <ellipse cx="155" cy="140" rx="6" ry="3" fill="rgba(180,160,100,0.4)"/>
+            <ellipse cx="175" cy="148" rx="4" ry="2" fill="rgba(180,160,100,0.35)"/>
+          </svg>
+        </div>
+        <div class="gcard-letter">A</div>
+        <div class="gcard-badge">5,000+ years</div>
+      </div>
+      <div class="gcard-body">
+        <div class="gcard-name">Ayurveda</div>
+        <div class="gcard-tagline">Science of Life · Sanskrit Tradition</div>
+        <div class="gcard-tags">
+          <span class="gtag">Tridosha</span><span class="gtag">Panchakarma</span><span class="gtag">Rasayana</span><span class="gtag">Herbs</span>
+        </div>
+        <div class="gcard-desc">Explore 230+ plants used in the world's oldest healing tradition — from Tulsi to Ashwagandha, each with detailed profiles and 3D models.</div>
+        <div class="gcard-footer">
+          <div class="gcard-plants"><span>230+</span> plants</div>
+          <div class="gcard-enter">Enter <span class="gcard-arrow">→</span></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- YOGA & NATUROPATHY -->
+    <a class="gcard" href="garden.html?g=Y"
+       style="--gc:rgba(200,220,60,0.9);--gg:rgba(200,220,60,0.1);--gc-a:rgba(200,220,60,0.05);--gc-bg:linear-gradient(135deg,rgba(50,70,10,0.9),rgba(20,28,4,0.95));">
+      <div class="gcard-top">
+        <div class="gcard-top-bg"></div>
+        <div class="garden-preview">
+          <svg width="100%" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;">
+            <path d="M0 100 L160 60 L320 100 L320 160 L0 160Z" fill="rgba(35,55,8,0.8)"/>
+            <path d="M0 100 L160 60 L320 100" stroke="rgba(200,220,60,0.2)" stroke-width="1"/>
+            <line x1="80" y1="80" x2="80" y2="160" stroke="rgba(200,220,60,0.06)" stroke-width="0.5"/>
+            <line x1="160" y1="60" x2="160" y2="160" stroke="rgba(200,220,60,0.06)" stroke-width="0.5"/>
+            <line x1="240" y1="80" x2="240" y2="160" stroke="rgba(200,220,60,0.06)" stroke-width="0.5"/>
+            <path d="M120 160 L160 120 L200 160" fill="rgba(160,180,80,0.3)" stroke="rgba(160,180,80,0.4)" stroke-width="0.5"/>
+            <!-- tall grass -->
+            <g><path d="M70 155 Q66 130 60 95" stroke="rgba(150,190,40,0.9)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M70 155 Q72 128 78 95" stroke="rgba(150,190,40,0.85)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M70 155 Q60 135 50 110" stroke="rgba(130,170,35,0.75)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M70 155 Q80 132 88 108" stroke="rgba(130,170,35,0.75)" stroke-width="1.8" stroke-linecap="round"/></g>
+            <!-- aloe-like succulent -->
+            <g><path d="M165 155 Q152 140 148 125 Q158 128 160 140Z" fill="rgba(100,170,50,0.85)"/>
+            <path d="M165 155 Q178 140 182 125 Q172 128 170 140Z" fill="rgba(100,170,50,0.85)"/>
+            <path d="M165 155 Q148 145 142 130 Q154 132 158 145Z" fill="rgba(80,150,40,0.8)"/>
+            <path d="M165 155 Q182 145 188 130 Q176 132 172 145Z" fill="rgba(80,150,40,0.8)"/>
+            <circle cx="165" cy="138" r="5" fill="rgba(200,220,60,0.8)"/>
+            <circle cx="165" cy="138" r="3" fill="rgba(220,240,80,0.9)"/></g>
+            <!-- flower -->
+            <g><path d="M255 155 Q253 138 255 122 Q256 108 255 94" stroke="rgba(100,140,30,0.85)" stroke-width="1.8" stroke-linecap="round"/>
+            <ellipse cx="249" cy="90" rx="7" ry="5" fill="rgba(200,220,60,0.85)" transform="rotate(-30,249,90)"/>
+            <ellipse cx="261" cy="88" rx="7" ry="5" fill="rgba(200,220,60,0.85)" transform="rotate(30,261,88)"/>
+            <ellipse cx="255" cy="83" rx="7" ry="5" fill="rgba(200,220,60,0.9)"/>
+            <circle cx="255" cy="88" r="4" fill="rgba(240,200,30,0.9)"/></g>
+            <ellipse cx="155" cy="140" rx="6" ry="3" fill="rgba(160,180,80,0.4)"/>
+          </svg>
+        </div>
+        <div class="gcard-letter">Y</div>
+        <div class="gcard-badge" style="color:rgba(200,220,60,0.9);border-color:rgba(200,220,60,0.5);">Natural healing</div>
+      </div>
+      <div class="gcard-body">
+        <div class="gcard-name">Yoga & Naturopathy</div>
+        <div class="gcard-tagline" style="color:rgba(200,220,60,0.85);">Body · Mind · Nature</div>
+        <div class="gcard-tags">
+          <span class="gtag">Pranayama</span><span class="gtag">Detox</span><span class="gtag">Hydrotherapy</span><span class="gtag">Diet</span>
+        </div>
+        <div class="gcard-desc">Discover 85+ plants used in naturopathic healing — from Moringa to Aloe Vera — and their role in holistic wellness and detox.</div>
+        <div class="gcard-footer">
+          <div class="gcard-plants"><span style="color:rgba(200,220,60,0.9);">85+</span> plants</div>
+          <div class="gcard-enter" style="color:rgba(200,220,60,0.85);">Enter <span class="gcard-arrow">→</span></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- UNANI -->
+    <a class="gcard" href="garden.html?g=U"
+       style="--gc:rgba(80,180,220,0.85);--gg:rgba(80,180,220,0.1);--gc-a:rgba(80,180,220,0.05);--gc-bg:linear-gradient(135deg,rgba(8,40,70,0.9),rgba(4,16,30,0.95));">
+      <div class="gcard-top">
+        <div class="gcard-top-bg"></div>
+        <div class="garden-preview">
+          <svg width="100%" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;">
+            <path d="M0 100 L160 60 L320 100 L320 160 L0 160Z" fill="rgba(10,30,50,0.8)"/>
+            <path d="M0 100 L160 60 L320 100" stroke="rgba(80,180,220,0.2)" stroke-width="1"/>
+            <line x1="80" y1="80" x2="80" y2="160" stroke="rgba(80,180,220,0.06)" stroke-width="0.5"/>
+            <line x1="160" y1="60" x2="160" y2="160" stroke="rgba(80,180,220,0.06)" stroke-width="0.5"/>
+            <line x1="240" y1="80" x2="240" y2="160" stroke="rgba(80,180,220,0.06)" stroke-width="0.5"/>
+            <path d="M120 160 L160 120 L200 160" fill="rgba(120,150,180,0.25)" stroke="rgba(120,150,180,0.35)" stroke-width="0.5"/>
+            <!-- shrub left -->
+            <g><path d="M75 150 Q73 130 75 112" stroke="rgba(60,130,80,0.85)" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="75" cy="100" r="20" fill="rgba(30,100,55,0.5)"/>
+            <circle cx="68" cy="93" r="14" fill="rgba(40,120,65,0.65)"/>
+            <circle cx="82" cy="91" r="13" fill="rgba(40,120,65,0.65)"/>
+            <circle cx="75" cy="85" r="14" fill="rgba(55,150,80,0.8)"/>
+            <circle cx="70" cy="79" r="8" fill="rgba(65,170,90,0.9)"/>
+            <circle cx="80" cy="77" r="7" fill="rgba(65,170,90,0.9)"/></g>
+            <!-- rose -->
+            <g><path d="M170 155 Q168 135 170 118" stroke="rgba(50,110,60,0.85)" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="170" cy="106" r="12" fill="rgba(200,60,80,0.7)"/>
+            <circle cx="170" cy="106" r="8" fill="rgba(220,80,90,0.85)"/>
+            <circle cx="170" cy="106" r="4" fill="rgba(240,100,100,0.95)"/>
+            <ellipse cx="160" cy="110" rx="7" ry="5" fill="rgba(200,60,80,0.6)" transform="rotate(-20,160,110)"/>
+            <ellipse cx="180" cy="110" rx="7" ry="5" fill="rgba(200,60,80,0.6)" transform="rotate(20,180,110)"/>
+            <ellipse cx="165" cy="100" rx="7" ry="5" fill="rgba(210,70,85,0.7)" transform="rotate(-40,165,100)"/>
+            <ellipse cx="175" cy="100" rx="7" ry="5" fill="rgba(210,70,85,0.7)" transform="rotate(40,175,100)"/></g>
+            <!-- tree right -->
+            <g><path d="M262 155 Q260 132 262 112 Q263 92 262 72" stroke="rgba(90,70,40,0.85)" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="262" cy="65" rx="22" ry="24" fill="rgba(50,130,60,0.5)"/>
+            <ellipse cx="255" cy="57" rx="16" ry="18" fill="rgba(60,150,70,0.65)"/>
+            <ellipse cx="270" cy="55" rx="14" ry="16" fill="rgba(60,150,70,0.65)"/>
+            <ellipse cx="262" cy="50" rx="15" ry="17" fill="rgba(70,170,85,0.85)"/>
+            <ellipse cx="257" cy="44" rx="9" ry="11" fill="rgba(80,190,95,0.9)"/></g>
+            <ellipse cx="155" cy="142" rx="5" ry="2.5" fill="rgba(120,150,180,0.4)"/>
+          </svg>
+        </div>
+        <div class="gcard-letter">U</div>
+        <div class="gcard-badge" style="color:rgba(80,180,220,0.9);border-color:rgba(80,180,220,0.5);">2,500+ years</div>
+      </div>
+      <div class="gcard-body">
+        <div class="gcard-name">Unani</div>
+        <div class="gcard-tagline" style="color:rgba(80,180,220,0.85);">Greco-Arabic Medicine · Four Humors</div>
+        <div class="gcard-tags">
+          <span class="gtag">Humors</span><span class="gtag">Mizaj</span><span class="gtag">Herbal</span><span class="gtag">Minerals</span>
+        </div>
+        <div class="gcard-desc">Explore 120+ plants from Mulethi to Kalonji used in the Greco-Arabic healing tradition that flourished under the Mughal Empire.</div>
+        <div class="gcard-footer">
+          <div class="gcard-plants"><span style="color:rgba(80,180,220,0.9);">120+</span> plants</div>
+          <div class="gcard-enter" style="color:rgba(80,180,220,0.85);">Enter <span class="gcard-arrow">→</span></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- SIDDHA -->
+    <a class="gcard" href="garden.html?g=S"
+       style="--gc:rgba(220,100,180,0.85);--gg:rgba(220,100,180,0.1);--gc-a:rgba(220,100,180,0.05);--gc-bg:linear-gradient(135deg,rgba(50,8,40,0.9),rgba(20,4,18,0.95));">
+      <div class="gcard-top">
+        <div class="gcard-top-bg"></div>
+        <div class="garden-preview">
+          <svg width="100%" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;">
+            <path d="M0 100 L160 60 L320 100 L320 160 L0 160Z" fill="rgba(35,8,30,0.8)"/>
+            <path d="M0 100 L160 60 L320 100" stroke="rgba(220,100,180,0.2)" stroke-width="1"/>
+            <line x1="80" y1="80" x2="80" y2="160" stroke="rgba(220,100,180,0.05)" stroke-width="0.5"/>
+            <line x1="160" y1="60" x2="160" y2="160" stroke="rgba(220,100,180,0.05)" stroke-width="0.5"/>
+            <line x1="240" y1="80" x2="240" y2="160" stroke="rgba(220,100,180,0.05)" stroke-width="0.5"/>
+            <path d="M120 160 L160 120 L200 160" fill="rgba(160,80,140,0.25)" stroke="rgba(160,80,140,0.35)" stroke-width="0.5"/>
+            <!-- large bael tree -->
+            <g><path d="M100 155 Q97 128 100 102 Q102 76 100 52" stroke="rgba(80,55,30,0.9)" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="100" cy="45" rx="26" ry="28" fill="rgba(40,100,50,0.45)"/>
+            <ellipse cx="92" cy="36" rx="18" ry="20" fill="rgba(50,120,60,0.6)"/>
+            <ellipse cx="110" cy="34" rx="16" ry="18" fill="rgba(50,120,60,0.6)"/>
+            <ellipse cx="100" cy="28" rx="18" ry="20" fill="rgba(60,140,72,0.82)"/>
+            <ellipse cx="94" cy="21" rx="10" ry="12" fill="rgba(70,160,82,0.9)"/>
+            <ellipse cx="106" cy="19" rx="9" ry="11" fill="rgba(70,160,82,0.9)"/>
+            <circle cx="100" cy="14" r="5" fill="rgba(220,200,60,0.85)"/></g>
+            <!-- vine/creeper -->
+            <g><path d="M200 155 Q198 138 200 122 Q202 106 200 90" stroke="rgba(60,130,70,0.85)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M200 138 Q184 126 175 118 Q188 122 194 133Z" fill="rgba(180,80,150,0.75)"/>
+            <path d="M200 125 Q216 114 225 106 Q212 110 206 121Z" fill="rgba(200,90,165,0.75)"/>
+            <path d="M200 112 Q184 98 178 88 Q192 94 196 108Z" fill="rgba(160,70,135,0.7)"/>
+            <path d="M200 100 Q216 88 222 80 Q208 86 204 97Z" fill="rgba(180,80,150,0.7)"/></g>
+            <!-- herb right -->
+            <g><path d="M265 155 Q263 138 265 123" stroke="rgba(50,120,60,0.85)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M265 140 Q252 128 244 120 Q258 124 262 136Z" fill="rgba(50,180,70,0.8)"/>
+            <path d="M265 130 Q278 118 286 110 Q272 114 268 126Z" fill="rgba(50,180,70,0.8)"/>
+            <path d="M265 120 Q254 110 248 102 Q260 106 263 116Z" fill="rgba(40,160,60,0.75)"/>
+            <circle cx="265" cy="118" r="3.5" fill="rgba(220,100,180,0.85)"/></g>
+            <ellipse cx="155" cy="142" rx="5" ry="2.5" fill="rgba(160,80,140,0.4)"/>
+          </svg>
+        </div>
+        <div class="gcard-letter">S</div>
+        <div class="gcard-badge" style="color:rgba(220,100,180,0.9);border-color:rgba(220,100,180,0.5);">Oldest Tamil system</div>
+      </div>
+      <div class="gcard-body">
+        <div class="gcard-name">Siddha</div>
+        <div class="gcard-tagline" style="color:rgba(220,100,180,0.85);">Tamil Tradition · 18 Siddhars</div>
+        <div class="gcard-tags">
+          <span class="gtag">Siddhars</span><span class="gtag">Muppu</span><span class="gtag">Kayakalpa</span><span class="gtag">Tamil</span>
+        </div>
+        <div class="gcard-desc">Explore 95+ plants from the ancient Tamil healing tradition — one of the world's oldest medical systems developed by the 18 Siddhars.</div>
+        <div class="gcard-footer">
+          <div class="gcard-plants"><span style="color:rgba(220,100,180,0.9);">95+</span> plants</div>
+          <div class="gcard-enter" style="color:rgba(220,100,180,0.85);">Enter <span class="gcard-arrow">→</span></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- HOMEOPATHY -->
+    <a class="gcard" href="garden.html?g=H"
+       style="--gc:rgba(200,165,80,0.9);--gg:rgba(200,165,80,0.1);--gc-a:rgba(200,165,80,0.05);--gc-bg:linear-gradient(135deg,rgba(50,35,8,0.9),rgba(22,14,4,0.95));">
+      <div class="gcard-top">
+        <div class="gcard-top-bg"></div>
+        <div class="garden-preview">
+          <svg width="100%" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;">
+            <path d="M0 100 L160 60 L320 100 L320 160 L0 160Z" fill="rgba(30,22,8,0.8)"/>
+            <path d="M0 100 L160 60 L320 100" stroke="rgba(200,165,80,0.2)" stroke-width="1"/>
+            <line x1="80" y1="80" x2="80" y2="160" stroke="rgba(200,165,80,0.06)" stroke-width="0.5"/>
+            <line x1="160" y1="60" x2="160" y2="160" stroke="rgba(200,165,80,0.06)" stroke-width="0.5"/>
+            <line x1="240" y1="80" x2="240" y2="160" stroke="rgba(200,165,80,0.06)" stroke-width="0.5"/>
+            <path d="M120 160 L160 120 L200 160" fill="rgba(170,140,70,0.25)" stroke="rgba(170,140,70,0.35)" stroke-width="0.5"/>
+            <!-- arnica flowers -->
+            <g><path d="M75 155 Q73 135 75 118" stroke="rgba(60,120,50,0.85)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M75 135 Q62 124 55 116 Q68 120 72 131Z" fill="rgba(50,160,65,0.78)"/>
+            <path d="M75 125 Q88 114 96 106 Q82 110 79 122Z" fill="rgba(50,160,65,0.78)"/>
+            <ellipse cx="70" cy="112" rx="8" ry="5" fill="rgba(200,180,40,0.85)" transform="rotate(-30,70,112)"/>
+            <ellipse cx="80" cy="110" rx="8" ry="5" fill="rgba(200,180,40,0.85)" transform="rotate(30,80,110)"/>
+            <ellipse cx="75" cy="105" rx="8" ry="5" fill="rgba(220,200,50,0.9)"/>
+            <circle cx="75" cy="110" r="4" fill="rgba(240,210,40,0.95)"/></g>
+            <!-- calendula -->
+            <g><path d="M170 155 Q168 132 170 112" stroke="rgba(55,115,45,0.85)" stroke-width="1.8" stroke-linecap="round"/>
+            <g transform="translate(170,105)">
+              <ellipse cx="0" cy="-10" rx="6" ry="10" fill="rgba(220,150,30,0.88)"/>
+              <ellipse cx="0" cy="-10" rx="6" ry="10" fill="rgba(220,150,30,0.88)" transform="rotate(45,0,0)"/>
+              <ellipse cx="0" cy="-10" rx="6" ry="10" fill="rgba(220,150,30,0.88)" transform="rotate(90,0,0)"/>
+              <ellipse cx="0" cy="-10" rx="6" ry="10" fill="rgba(220,150,30,0.88)" transform="rotate(135,0,0)"/>
+              <ellipse cx="0" cy="-10" rx="6" ry="10" fill="rgba(200,130,20,0.8)" transform="rotate(22.5,0,0)"/>
+              <ellipse cx="0" cy="-10" rx="6" ry="10" fill="rgba(200,130,20,0.8)" transform="rotate(67.5,0,0)"/>
+              <ellipse cx="0" cy="-10" rx="6" ry="10" fill="rgba(200,130,20,0.8)" transform="rotate(112.5,0,0)"/>
+              <ellipse cx="0" cy="-10" rx="6" ry="10" fill="rgba(200,130,20,0.8)" transform="rotate(157.5,0,0)"/>
+              <circle cx="0" cy="0" r="6" fill="rgba(240,190,40,0.95)"/>
+            </g></g>
+            <!-- belladonna shrub -->
+            <g><path d="M265 155 Q262 130 265 108 Q267 85 265 65" stroke="rgba(70,55,30,0.85)" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="265" cy="58" r="22" fill="rgba(40,90,50,0.45)"/>
+            <circle cx="258" cy="50" r="15" fill="rgba(50,110,60,0.6)"/>
+            <circle cx="273" cy="48" r="13" fill="rgba(50,110,60,0.6)"/>
+            <circle cx="265" cy="43" r="14" fill="rgba(60,130,70,0.8)"/>
+            <circle cx="260" cy="37" r="8" fill="rgba(70,150,80,0.9)"/>
+            <circle cx="270" cy="35" r="7" fill="rgba(70,150,80,0.9)"/>
+            <circle cx="255" cy="80" r="5" fill="rgba(60,20,80,0.85)"/>
+            <circle cx="275" cy="78" r="4.5" fill="rgba(60,20,80,0.85)"/>
+            <circle cx="265" cy="85" r="5.5" fill="rgba(70,25,90,0.9)"/></g>
+            <ellipse cx="155" cy="142" rx="5" ry="2.5" fill="rgba(170,140,70,0.4)"/>
+          </svg>
+        </div>
+        <div class="gcard-letter">H</div>
+        <div class="gcard-badge" style="color:rgba(200,165,80,0.9);border-color:rgba(200,165,80,0.5);">Since 1796</div>
+      </div>
+      <div class="gcard-body">
+        <div class="gcard-name">Homeopathy</div>
+        <div class="gcard-tagline" style="color:rgba(200,165,80,0.85);">Like Cures Like · Hahnemann</div>
+        <div class="gcard-tags">
+          <span class="gtag">Potentization</span><span class="gtag">Miasm</span><span class="gtag">Constitutional</span><span class="gtag">Dilution</span>
+        </div>
+        <div class="gcard-desc">Discover 110+ plants — Arnica, Belladonna, Calendula — potentized to stimulate the body's own healing mechanisms worldwide.</div>
+        <div class="gcard-footer">
+          <div class="gcard-plants"><span style="color:rgba(200,165,80,0.9);">110+</span> plants</div>
+          <div class="gcard-enter" style="color:rgba(200,165,80,0.85);">Enter <span class="gcard-arrow">→</span></div>
+        </div>
+      </div>
+    </a>
+
+  </div><!-- /gardens -->
+
+  <!-- INFO STRIP -->
+  <div class="info-strip">
+    <div class="icard"><div class="icard-num">500+</div><div class="icard-lbl">Total Plants</div></div>
+    <div class="icard"><div class="icard-num">5</div><div class="icard-lbl">Healing Systems</div></div>
+    <div class="icard"><div class="icard-num">3D</div><div class="icard-lbl">Plant Models</div></div>
+    <div class="icard"><div class="icard-num">Quiz</div><div class="icard-lbl">Per Garden</div></div>
+  </div>
+
+</div>
+
+<script>
+/* USER */
+(function(){
+  const u=localStorage.getItem('ayush_user');
+  if(u){const p=JSON.parse(u);document.getElementById('uname').textContent=p.name||'Guest';}
+  else{window.location.href='login.html';}
+})();
+
+/* BG CANVAS */
+const cv=document.getElementById('canvas'),ctx=cv.getContext('2d');
+let W,H,pts=[];
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+resize();window.addEventListener('resize',()=>{resize();initPts();});
+function initPts(){pts=[];const N=Math.floor((W*H)/20000);for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.8+0.4,a:Math.random()*0.4+0.08,hue:Math.random()*40+100});}
+initPts();
+function draw(){ctx.clearRect(0,0,W,H);for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.strokeStyle=`rgba(61,220,132,${0.04*(1-d/120)})`;ctx.lineWidth=0.4;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}}}for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`hsla(${p.hue},60%,65%,${p.a})`;ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;}requestAnimationFrame(draw);}
+draw();
+
+/* FIREFLIES */
+const fc=document.getElementById('flies');
+for(let i=0;i<20;i++){const f=document.createElement('div');f.className='firefly';const s=Math.random()*2+1.5;f.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${s}px;height:${s}px;--x:${(Math.random()-0.5)*180}px;--y:${(Math.random()-0.5)*180}px;--d:${Math.random()*6+5}s;--dl:-${Math.random()*8}s;`;fc.appendChild(f);}
+
+/* LEAVES */
+const lc=document.getElementById('leaves');
+const svgs=[`<svg width="16" height="22" viewBox="0 0 16 22" fill="none"><path d="M8 21 Q0 14 2 7 Q5 0 8 3 Q11 0 14 7 Q16 14 8 21Z" fill="rgba(45,106,53,0.5)" stroke="rgba(61,220,132,0.25)" stroke-width="0.5"/><path d="M8 21 Q8 12 8 3" stroke="rgba(61,220,132,0.2)" stroke-width="0.4"/></svg>`,`<svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M1 6 Q5 0 10 2 Q15 0 19 6 Q15 12 10 10 Q5 12 1 6Z" fill="rgba(74,153,85,0.45)" stroke="rgba(106,191,114,0.25)" stroke-width="0.5"/></svg>`];
+for(let i=0;i<14;i++){const l=document.createElement('div');l.className='leaf-bg';l.innerHTML=svgs[i%svgs.length];l.style.cssText=`left:${Math.random()*100}%;top:-5%;--ld:${Math.random()*12+10}s;--ldl:-${Math.random()*14}s;--lx:${(Math.random()-0.5)*160}px;transform:rotate(${Math.random()*360}deg);`;lc.appendChild(l);}
+
+/* SCROLL REVEAL */
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');});
+},{threshold:0.08});
+
+document.querySelectorAll('.gcard').forEach((el,i)=>{
+  el.style.transitionDelay=`${i*0.1}s`;
+  obs.observe(el);
+});
+document.querySelectorAll('.icard').forEach((el,i)=>{
+  el.style.transitionDelay=`${0.5+i*0.1}s`;
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
