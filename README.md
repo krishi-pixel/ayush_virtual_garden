@@ -82,14 +82,3 @@ Physical herbal gardens are not accessible to everyone. Students, researchers, a
 | Anthropic SDK | AI quiz generation (server-side) |
 | Uvicorn | ASGI server |
 
-
-
-
-
----
-
-
-
----
-
-*Built with 🌿 for Smart India Hackathon 2024*
